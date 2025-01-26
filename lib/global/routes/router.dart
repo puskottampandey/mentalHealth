@@ -92,7 +92,7 @@ final GoRouter router = GoRouter(
         path: '/chat',
         builder: (context, state) {
           final value = state.extra as String;
-          return ChatScren(data: value);
+          return ChatScreen(data: value);
         }),
     GoRoute(
         name: RouteConstants.multipleChoice,

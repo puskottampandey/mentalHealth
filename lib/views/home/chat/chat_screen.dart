@@ -5,22 +5,21 @@ import 'package:hive/hive.dart';
 import '../../../global/constants/colors_text.dart';
 import '../../../global/reuseable/scaffold.dart';
 
-
-class ChatScren extends StatefulWidget {
+class ChatScreen extends StatefulWidget {
   final String? data;
-  const ChatScren({
+  const ChatScreen({
     super.key,
     this.data,
   });
 
   @override
-  State<ChatScren> createState() => _ChatScrenState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
 final List<String> chatlist = [];
 final controller = TextEditingController();
 
-class _ChatScrenState extends State<ChatScren> {
+class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return ReuseableScaffold(
