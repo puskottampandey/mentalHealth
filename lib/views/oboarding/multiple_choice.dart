@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../global/constants/colors_text.dart';
+import '../../global/reuseable/button.dart';
 
 class PHQ9Screen extends StatefulWidget {
   const PHQ9Screen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _PHQ9ScreenState createState() => _PHQ9ScreenState();
 }
 
@@ -30,7 +36,7 @@ class Recommendation {
 
 class _PHQ9ScreenState extends State<PHQ9Screen> {
   final List<int> _responses = List.filled(9, 0);
-
+  bool isLoading = false;
   final List<String> questions = [
     "Little interest or pleasure in doing things",
     "Feeling down, depressed, or hopeless",
@@ -100,81 +106,186 @@ class _PHQ9ScreenState extends State<PHQ9Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("PHQ-9 Questionnaire")),
-      body: ListView.builder(
-        itemCount: questions.length,
-        itemBuilder: (context, index) {
-          return Card(
-            margin: EdgeInsets.all(8),
+      backgroundColor: AppColors.whiteColor,
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          "PHQ-9 Questionnaire",
+          style: textPoppions.headlineMedium?.copyWith(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      body: Stack(children: [
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+          child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    questions[index],
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  "Over the last 2 weeks, how often have you been bothered by any of the following problems?",
+                  style: textPoppions.headlineMedium?.copyWith(
+                    color: AppColors.iconColor,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
                   ),
+                  textAlign: TextAlign.center,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: List.generate(4, (option) {
-                    return Row(
-                      children: [
-                        Radio<int>(
-                          value: option,
-                          groupValue: _responses[index],
-                          onChanged: (value) {
-                            setState(() {
-                              _responses[index] = value!;
-                            });
-                          },
+                SizedBox(
+                  height: 10.h,
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: questions.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      elevation: 0,
+                      margin: EdgeInsets.symmetric(vertical: 6.h),
+                      color: AppColors.pureWhiteColor,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "${index + 1}. ${questions[index]}",
+                                style: textPoppions.headlineMedium?.copyWith(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            ...List.generate(4, (option) {
+                              return Row(
+                                children: [
+                                  Radio<int>(
+                                    splashRadius: 12,
+                                    activeColor: AppColors.primaryColor,
+                                    visualDensity: const VisualDensity(
+                                        horizontal:
+                                            VisualDensity.minimumDensity,
+                                        vertical: VisualDensity.minimumDensity),
+                                    value: option,
+                                    groupValue: _responses[index],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _responses[index] = value!;
+                                      });
+                                    },
+                                  ),
+                                  Text(
+                                    [
+                                      "Not at all",
+                                      "Several days",
+                                      "More than half",
+                                      "Nearly every day"
+                                    ][option],
+                                    style:
+                                        textPoppions.headlineMedium?.copyWith(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
+                          ],
                         ),
-                        Text([
-                          "Not at all",
-                          "Several days",
-                          "More than half",
-                          "Nearly every day"
-                        ][option]),
-                      ],
+                      ),
                     );
-                  }),
+                  },
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+                ReuseableButton(
+                  bgcolor: AppColors.primaryColor,
+                  text: "Sign In",
+                  textcolor: kvverylightColor,
+                  ontap: () async {
+                    setState(() {
+                      isLoading = true; // Start loading
+                    });
+
+                    // Simulate a delay to mimic the fetching process (e.g., API call)
+                    // ignore: prefer_const_constructors
+                    await Future.delayed(Duration(seconds: 5));
+
+                    // Simulate fetching the recommendation
+                    Recommendation recommendation = classifyUser();
+
+                    setState(() {
+                      isLoading =
+                          false; // Stop loading once the data is fetched
+                    });
+                    // Show dialog with the recommendation result
+                    showDialog(
+                      // ignore: use_build_context_synchronously
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text(recommendation.title),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                              child: Text(
+                                "Description: ${recommendation.description}\n",
+                                style: textPoppions.headlineMedium?.copyWith(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              "Action: ${recommendation.action}",
+                              style: textPoppions.headlineMedium?.copyWith(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => context.push("/signIn"),
+                            child: Text(
+                              "Ok",
+                              style: textPoppions.headlineMedium?.copyWith(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
-          );
-        },
-      ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.all(16),
-        child: ElevatedButton(
-          onPressed: () {
-            Recommendation recommendation = classifyUser();
-
-            showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                title: Text(recommendation.title),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Description: ${recommendation.description}\n"),
-                    Text("Action: ${recommendation.action}"),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text("Close"),
-                  ),
-                ],
-              ),
-            );
-          },
-          child: Text("Submit"),
+          ),
         ),
-      ),
+        isLoading
+            ? Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.black.withOpacity(0.5),
+                child: // Soft black background
+
+                    // Centered loading indicator
+                    const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+              )
+            : Container()
+      ]),
     );
   }
 }
