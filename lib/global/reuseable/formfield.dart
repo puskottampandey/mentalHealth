@@ -41,7 +41,7 @@ class ReusableFormField extends StatefulWidget {
   final bool validation;
   final String? text;
   const ReusableFormField({
-    Key? key,
+    super.key,
     this.validator,
     this.onChanged,
     this.onFieldSubmit,
@@ -74,7 +74,7 @@ class ReusableFormField extends StatefulWidget {
     this.contentPadding,
     this.focusNode,
     this.text,
-  }) : super(key: key);
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -237,43 +237,44 @@ class _ReusableFormFieldState extends State<ReusableFormField> {
                               color: Theme.of(context).primaryColor)
                           : null
                   : null)),
-      validator: (value) {
-        if (widget.validator != null) {
-          setState(() {
-            errorText = widget.validator!(value);
-          });
-        }
-        return errorText == null ? null : '';
-      },
+      validator: widget.validator,
+      // (value) {
+      //   if (widget.validator != null) {
+      //     setState(() {
+      //       errorText = widget.validator!(value);
+      //     });
+      //   }
+      //   return errorText == null ? null : '';
+      // },
       autovalidateMode: AutovalidateMode.disabled,
-      onChanged: widget.onChanged != null
-          ? widget.onChanged?.call
-          : (value) {
-              if (widget.validator != null) {
-                setState(() {
-                  _updatePassword(widget.controller!.text);
-                  errorText = widget.validator!(value);
-                });
-              }
-            },
-      onSaved: (value) {
-        if (widget.onFieldSubmit != null) {
-          widget.onFieldSubmit!.call(value);
-        } else if (widget.validator != null) {
-          setState(() {
-            errorText = widget.validator!(value);
-          });
-        }
-      },
-      onFieldSubmitted: (value) {
-        if (widget.onFieldSubmit != null) {
-          widget.onFieldSubmit!.call(value);
-        } else if (widget.validator != null) {
-          setState(() {
-            errorText = widget.validator!(value);
-          });
-        }
-      },
+      // onChanged: widget.onChanged != null
+      //     ? widget.onChanged?.call
+      //     : (value) {
+      //         if (widget.validator != null) {
+      //           setState(() {
+      //             _updatePassword(widget.controller!.text);
+      //             errorText = widget.validator!(value);
+      //           });
+      //         }
+      //       },
+      // onSaved: (value) {
+      //   if (widget.onFieldSubmit != null) {
+      //     widget.onFieldSubmit!.call(value);
+      //   } else if (widget.validator != null) {
+      //     setState(() {
+      //       errorText = widget.validator!(value);
+      //     });
+      //   }
+      // },
+      // onFieldSubmitted: (value) {
+      //   if (widget.onFieldSubmit != null) {
+      //     widget.onFieldSubmit!.call(value);
+      //   } else if (widget.validator != null) {
+      //     setState(() {
+      //       errorText = widget.validator!(value);
+      //     });
+      //   }
+      // },
     );
   }
 

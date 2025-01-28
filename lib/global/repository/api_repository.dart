@@ -44,8 +44,10 @@ class ApiRepository {
       return ResponseModel.fromJson(res.data);
     } on DioException catch (e) {
       if (e.response != null) {
+        print("value");
+        print(e.response!.data);
         final Map<String, dynamic> errorData = e.response!.data;
-        final errorMessage = errorData['errors'][0]['detail'][0];
+        final errorMessage = errorData['errors'][0];
         // Handle specific HTTP status codesr
         switch (e.response!.statusCode) {
           case 400:

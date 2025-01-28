@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/controllers/login_controller.dart';
+import 'package:mentalhealth/global/reuseable/snackbar.dart';
+import 'package:mentalhealth/views/authentication/signup/sign_up_screen.dart';
 
 import '../../../global/constants/colors_text.dart';
 import '../../../global/reuseable/button.dart';
@@ -21,7 +24,14 @@ class SignInScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final emailcontroller = ref.watch(email);
     final passwordcontroller = ref.watch(password);
-
+    ref.listen<StateModel>(authControllerProvider, (previous, next) async {
+      if (next.requestStatus == RequestStatus.failure) {
+        SnackBars.errorsnackbar(context, "Something went wrong");
+      }
+      if (next.requestStatus == RequestStatus.success) {
+        SnackBars.successSnackbar(context, "Login successful!");
+      }
+    });
     return ReuseableScaffold(
       appbar: true,
       back: false,
@@ -58,7 +68,7 @@ class SignInScreen extends ConsumerWidget {
                     ReusableFormField(
                       obscureText: false,
                       controller: emailcontroller,
-                      hint: "Email",
+                      hint: "Email/Username",
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.text,
                       validator: (String? value) {
@@ -111,8 +121,16 @@ class SignInScreen extends ConsumerWidget {
                       text: "Sign In",
                       textcolor: kvverylightColor,
                       ontap: () {
-                        if (_signIn.currentState!.validate()) {}
-                        context.go("/myApp");
+                        if (_signIn.currentState!.validate()) {
+                          final authc =
+                              ref.read(authControllerProvider.notifier);
+
+                          authc.login(
+                            emailcontroller.text.toString(),
+                            passwordcontroller.text.toString(),
+                          );
+                        }
+                        // context.go("/myApp");
                       },
                     ),
                     SizedBox(
@@ -120,6 +138,9 @@ class SignInScreen extends ConsumerWidget {
                     ),
                     GestureDetector(
                       onTap: () {
+                        ref.read(genderCheck.notifier).state = false;
+                        ref.read(selectedGender.notifier).state = -1;
+
                         context.push("/signup");
                       },
                       child: RichText(

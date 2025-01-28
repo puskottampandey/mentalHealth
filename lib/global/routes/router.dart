@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/global/routes/route_constants.dart';
 import 'package:mentalhealth/views/oboarding/multiple_choice.dart';
-
 import '../../views/authentication/forgot_password/forgot_password.dart';
 import '../../views/authentication/forgot_password/reset_password_screen.dart';
 import '../../views/authentication/forgot_password/verification_code_screen.dart';
@@ -49,7 +48,7 @@ final GoRouter router = GoRouter(
         name: RouteConstants.signUp,
         path: '/signUp',
         builder: (context, state) {
-          return const SignUpScreen();
+          return SignUpScreen();
         }),
     GoRoute(
         name: RouteConstants.forgotPassword,
@@ -61,7 +60,7 @@ final GoRouter router = GoRouter(
         name: RouteConstants.verificationCode,
         path: '/verificationCode',
         builder: (context, state) {
-          return const VerificationCodeScreen();
+          return VerificationCodeScreen();
         }),
     GoRoute(
         name: RouteConstants.resetPassword,

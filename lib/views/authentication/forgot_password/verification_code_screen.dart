@@ -2,21 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/controllers/email_confirm.dart';
+import 'package:mentalhealth/global/reuseable/snackbar.dart';
+import 'package:mentalhealth/views/authentication/signup/sign_up_screen.dart';
 import 'package:pinput/pinput.dart';
 import '../../../global/constants/colors_text.dart';
 import '../../../global/reuseable/button.dart';
-import '../../../global/reuseable/formfield.dart';
 import '../../../global/reuseable/scaffold.dart';
 
 final codeProvider = AutoDisposeProvider((ref) => TextEditingController());
 
 class VerificationCodeScreen extends ConsumerWidget {
-  const VerificationCodeScreen({super.key});
-
+  VerificationCodeScreen({super.key});
+  final GlobalKey<FormState> _code = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final GlobalKey<FormState> _code = GlobalKey<FormState>();
     final code = ref.watch(codeProvider);
+    final email = ref.watch(userEmail);
+    ref.listen<StateModel>(emailConfirmControllerProvider,
+        (previous, next) async {
+      if (next.requestStatus == RequestStatus.failure) {
+        SnackBars.errorsnackbar(context, "Something went wrong");
+      }
+      if (next.requestStatus == RequestStatus.success) {
+        SnackBars.successSnackbar(context, " Successfull!, please sign in");
+        context.go('/signIn');
+      }
+    });
     return ReuseableScaffold(
       appbar: true,
       text: "Verification Code",
@@ -41,18 +54,6 @@ class VerificationCodeScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   pinput(code),
-                  // ReusableFormField(
-                  //   controller: code,
-                  //   hint: "Email",
-                  //   textInputAction: TextInputAction.next,
-                  //   keyboardType: TextInputType.emailAddress,
-                  //   validator: (String? value) {
-                  //     if (value == null || value.isEmpty) {
-                  //       return "Enter a email";
-                  //     }
-                  //     return null;
-                  //   },
-                  // ),
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
@@ -72,8 +73,11 @@ class VerificationCodeScreen extends ConsumerWidget {
                     text: "Confirm",
                     textcolor: kvverylightColor,
                     ontap: () {
-                      if (_code.currentState!.validate()) {}
-                      context.push("/resetPassword");
+                      if (_code.currentState!.validate()) {
+                        ref
+                            .read(emailConfirmControllerProvider.notifier)
+                            .emailConfirm(code.text, email);
+                      }
                     },
                   ),
                 ],

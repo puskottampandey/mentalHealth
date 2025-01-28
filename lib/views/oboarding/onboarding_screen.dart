@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mentalhealth/global/services/token_service.dart';
 import 'package:mentalhealth/views/oboarding/model.dart';
 
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -52,7 +53,8 @@ class OnboardingScreen extends ConsumerWidget {
                   alignment: Alignment.topRight,
                   child: IconButton(
                       onPressed: () {
-                        // TokenService().savecomplete("completed", true);
+                        TokenService().savecomplete("completed", true);
+                        context.go('/signIn');
                       },
                       icon: Icon(
                         Icons.fast_forward,
@@ -150,8 +152,8 @@ class OnboardingScreen extends ConsumerWidget {
                         ),
                         onPressed: () {
                           if (page == 2) {
-                            // TokenService().savecomplete("completed", true);
-                            context.go('/multipleChoice');
+                            TokenService().savecomplete("completed", true);
+                            context.go('/signIn');
                           } else {
                             controller.nextPage(
                                 duration: const Duration(milliseconds: 500),

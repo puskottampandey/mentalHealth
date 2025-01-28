@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/global/constants/colors_text.dart';
+import 'package:mentalhealth/global/services/token_service.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -15,9 +16,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      // ignore: use_build_context_synchronously
-      context.go("/onboard");
+    Future.delayed(const Duration(seconds: 1), () async {
+      final iscomplete = await TokenService().getOncomplete();
+
+      if (iscomplete == null || iscomplete.isEmpty) {
+        // ignore: use_build_context_synchronously
+        context.go("/onboard");
+      } else {
+        // ignore: use_build_context_synchronously
+        context.go("/signIn");
+      }
     });
   }
 

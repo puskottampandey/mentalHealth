@@ -20,6 +20,7 @@ class DioService {
             if ((token == null || token.isEmpty)) {
               requestOptions.headers.addAll(
                 <String, String>{
+                  'accept': '*/*',
                   'Content-Type': 'application/json',
                   // 'Accept': 'application/json',
                 },
@@ -27,6 +28,7 @@ class DioService {
             } else {
               requestOptions.headers.addAll(
                 <String, String>{
+                  'accept': '*/*',
                   'Authorization': 'Token $token',
                   'Content-Type': 'application/json',
                   // 'Accept': 'application/json',
