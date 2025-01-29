@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import '../../../global/constants/colors_text.dart';
@@ -59,6 +60,9 @@ class MainHomeScreen extends ConsumerWidget {
           currentIndex: currentIndex,
           onTap: (index) async {
             ref.read(currentIndexProvider.notifier).state = index;
+            if (index == 3) {
+              ref.read(userDataControllerProvider.notifier).userData();
+            }
           },
           items: [
             salomonBar(currentIndex, Icons.home, "Home", 0),

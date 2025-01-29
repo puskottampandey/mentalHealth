@@ -23,8 +23,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         // ignore: use_build_context_synchronously
         context.go("/onboard");
       } else {
+        final iscomplete = await TokenService().getToken();
+        if (iscomplete == null || iscomplete.isEmpty) {
+          // ignore: use_build_context_synchronously
+          context.go("/signIn");
+        } else {
+          // ignore: use_build_context_synchronously
+          context.go("/multipleChoice");
+        }
         // ignore: use_build_context_synchronously
-        context.go("/signIn");
       }
     });
   }

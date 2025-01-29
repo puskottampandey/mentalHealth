@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/controllers/theraplist.dart';
 import 'package:mentalhealth/global/reuseable/formfield.dart';
+import 'package:mentalhealth/views/home/home/therapist_data.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../global/constants/colors_text.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   HomeScreen({super.key});
   final List<String> _list = [
     "Doctor",
@@ -45,7 +49,8 @@ class HomeScreen extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final details = ref.watch(therapistListControllerProvider);
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       body: Padding(
@@ -81,75 +86,29 @@ class HomeScreen extends StatelessWidget {
                 style: textPoppions.headlineMedium
                     ?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w600),
               ),
-              SizedBox(
-                height: 160.h,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 6,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            context.push('/doctorDetails');
-                          },
-                          child: Container(
-                            width: 100.w,
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 8.w, vertical: 8.h),
-                            decoration: BoxDecoration(
-                              color: AppColors.pureWhiteColor,
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryColor,
-                                    borderRadius: BorderRadius.circular(8.r),
-                                  ),
-                                  child: Image.asset(
-                                    "assets/images/docotors.png",
-                                    height: 80.h,
-                                    width: 100.w,
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 8.h, horizontal: 8.w),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "Dr.Pandey Puskottam ",
-                                        style: textPoppions.headlineMedium
-                                            ?.copyWith(
-                                          fontSize: 10.sp,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      Text(
-                                        "Psychiatrist",
-                                        style: textPoppions.headlineMedium
-                                            ?.copyWith(
-                                                color: AppColors.iconColor,
-                                                fontSize: 10.sp,
-                                                fontWeight: FontWeight.w600),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+              Builder(builder: (context) {
+                switch (details.requestStatus) {
+                  case RequestStatus.initial:
+                    return const Center(child: CircularProgressIndicator());
+                  case RequestStatus.progress:
+                    return const Center(child: CircularProgressIndicator());
+                  case RequestStatus.success:
+                    return TherapistData(data: details.data);
+                  case RequestStatus.failure:
+                    return Center(
+                      child: Text(
+                        "Something went wrong",
+                        style: textPoppions.titleMedium?.copyWith(
+                            fontSize: 12.sp,
+                            color: AppColors.blackColor,
+                            fontWeight: FontWeight.bold),
+                      ),
                     );
-                  },
-                ),
-              ),
+                  case RequestStatus.fetchingMore:
+                    return Container();
+                }
+              }),
+            
               Text(
                 "Services",
                 style: textPoppions.headlineMedium

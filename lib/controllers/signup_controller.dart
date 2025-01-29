@@ -25,12 +25,11 @@ class SignUpController extends StateNotifier<StateModel> {
     String? password,
   ) async {
     try {
-      ref.read(isloadingProvider.notifier).state = false;
+      ref.read(isloadingProvider.notifier).state = true;
       state = state.copyWith(requestStatus: RequestStatus.progress);
       DateTime date = DateFormat("yyyy-MM-dd").parse(birth!);
       String formattedDate =
           DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(date.toUtc());
-      print(password);
       final res = await GetIt.I.get<ApiRepository>().apiRequest(
             endpoint: APIEndpoints.signUp,
             data: {

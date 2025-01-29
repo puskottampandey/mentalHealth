@@ -1,32 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/controllers/signup_controller.dart';
 import 'package:mentalhealth/global/constants/api_endpoints.dart';
 import 'package:mentalhealth/global/repository/api_repository.dart';
 
-final isloadingProvider = StateProvider<bool>((ref) => false);
-
-class EmailConfirmController extends StateNotifier<StateModel> {
-  EmailConfirmController(this.ref)
+class TherapistUser extends StateNotifier<StateModel> {
+  TherapistUser(this.ref)
       : super(StateModel(
             requestStatus: RequestStatus.initial, message: "Initial"));
 
   final Ref ref;
 
-  Future<void> emailConfirm(
-    String? otp,
-    String? email,
-  ) async {
+  Future<void> therapistUser() async {
     try {
       ref.read(isloadingProvider.notifier).state = true;
       state = state.copyWith(requestStatus: RequestStatus.progress);
       final res = await GetIt.I.get<ApiRepository>().apiRequest(
-            endpoint: APIEndpoints.emailconfirm,
-            data: {
-              "email": email,
-              "otp": otp,
-            },
-            request: "post",
+            endpoint: APIEndpoints.userData,
+            request: "get",
           );
 
       if (mounted) {
@@ -46,6 +38,6 @@ class EmailConfirmController extends StateNotifier<StateModel> {
   }
 }
 
-final emailConfirmControllerProvider =
-    StateNotifierProvider<EmailConfirmController, StateModel>(
-        (ref) => EmailConfirmController(ref));
+final therapistUserControllerProvider =
+    StateNotifierProvider<TherapistUser, StateModel>(
+        (ref) => TherapistUser(ref));

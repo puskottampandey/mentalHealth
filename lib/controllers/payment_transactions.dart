@@ -1,30 +1,30 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
+import 'package:mentalhealth/configs/auth_response_model.dart';
 import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/controllers/signup_controller.dart';
 import 'package:mentalhealth/global/constants/api_endpoints.dart';
 import 'package:mentalhealth/global/repository/api_repository.dart';
+import 'package:mentalhealth/global/services/token_service.dart';
 
-final isloadingProvider = StateProvider<bool>((ref) => false);
-
-class EmailConfirmController extends StateNotifier<StateModel> {
-  EmailConfirmController(this.ref)
+class PaymentTransactionsController extends StateNotifier<StateModel> {
+  PaymentTransactionsController(this.ref)
       : super(StateModel(
             requestStatus: RequestStatus.initial, message: "Initial"));
 
   final Ref ref;
 
-  Future<void> emailConfirm(
-    String? otp,
+  Future<void> paymentTrasactions(
     String? email,
   ) async {
     try {
       ref.read(isloadingProvider.notifier).state = true;
       state = state.copyWith(requestStatus: RequestStatus.progress);
       final res = await GetIt.I.get<ApiRepository>().apiRequest(
-            endpoint: APIEndpoints.emailconfirm,
+            endpoint: APIEndpoints.sendemail,
             data: {
               "email": email,
-              "otp": otp,
             },
             request: "post",
           );
@@ -46,6 +46,6 @@ class EmailConfirmController extends StateNotifier<StateModel> {
   }
 }
 
-final emailConfirmControllerProvider =
-    StateNotifierProvider<EmailConfirmController, StateModel>(
-        (ref) => EmailConfirmController(ref));
+final paymentTransactionsControllerProvider =
+    StateNotifierProvider<PaymentTransactionsController, StateModel>(
+        (ref) => PaymentTransactionsController(ref));

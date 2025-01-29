@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mentalhealth/controllers/theraplist.dart';
 
 import '../../global/constants/colors_text.dart';
 import '../../global/reuseable/button.dart';
 
-class PHQ9Screen extends StatefulWidget {
+class PHQ9Screen extends ConsumerStatefulWidget {
   const PHQ9Screen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _PHQ9ScreenState createState() => _PHQ9ScreenState();
+  ConsumerState<PHQ9Screen> createState() => _PHQ9ScreenState();
 }
 
 // Data structure for depression severity levels
@@ -34,7 +35,7 @@ class Recommendation {
       {required this.title, required this.description, required this.action});
 }
 
-class _PHQ9ScreenState extends State<PHQ9Screen> {
+class _PHQ9ScreenState extends ConsumerState<PHQ9Screen> {
   final List<int> _responses = List.filled(9, 0);
   bool isLoading = false;
   final List<String> questions = [
@@ -252,7 +253,13 @@ class _PHQ9ScreenState extends State<PHQ9Screen> {
                         ),
                         actions: [
                           TextButton(
-                            onPressed: () => context.push("/signIn"),
+                            onPressed: () {
+                              ref
+                                  .read(
+                                      therapistListControllerProvider.notifier)
+                                  .therapistList();
+                              context.push("/myApp");
+                            },
                             child: Text(
                               "Ok",
                               style: textPoppions.headlineMedium?.copyWith(

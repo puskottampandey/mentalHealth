@@ -42,7 +42,7 @@ class SignUpScreen extends ConsumerWidget {
     final userName = ref.watch(username);
     final genderValue = ref.watch(selectedGender);
     final check = ref.watch(genderCheck);
-
+    final isloading = ref.watch(isloadingProvider);
     ref.listen<StateModel>(signUpControllerProvider, (previous, next) async {
       if (next.requestStatus == RequestStatus.failure) {
         SnackBars.errorsnackbar(context, "Something went wrong");
@@ -116,7 +116,7 @@ class SignUpScreen extends ConsumerWidget {
                         ],
                         validator: (String? value) {
                           if (value == null || value.isEmpty) {
-                            return "Enter a User Name";
+                            return "Enter a Date of Birth";
                           }
                           if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
                             return "Invalid format. Use YYYY-MM-DD.";
@@ -239,6 +239,7 @@ class SignUpScreen extends ConsumerWidget {
                         text: "Sign Up",
                         bgcolor: AppColors.primaryColor,
                         textcolor: kwhitelightColor,
+                        isloading: isloading,
                         ontap: () {
                           if (_signUp.currentState!.validate()) {
                             ref.read(signUpControllerProvider.notifier).signUp(

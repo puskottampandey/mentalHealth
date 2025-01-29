@@ -17,7 +17,7 @@ class AuthController extends StateNotifier<StateModel> {
 
   Future<void> login(String? email, String? password) async {
     try {
-      ref.read(isloadingProvider.notifier).state = false;
+      ref.read(isloadingProvider.notifier).state = true;
       state = state.copyWith(requestStatus: RequestStatus.progress);
       final res = await GetIt.I.get<ApiRepository>().apiRequest(
             endpoint: APIEndpoints.signIn,
@@ -27,7 +27,7 @@ class AuthController extends StateNotifier<StateModel> {
             },
             request: "post",
           );
-      // TokenService().saveToken(res.data['token'], true);
+      TokenService().saveToken(res.data['token'], true);
       // TokenService().saveExpiry(authResponse.expiry, true);
 
       if (mounted) {

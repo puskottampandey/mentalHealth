@@ -29,7 +29,7 @@ class DioService {
               requestOptions.headers.addAll(
                 <String, String>{
                   'accept': '*/*',
-                  'Authorization': 'Token $token',
+                  'Authorization': 'Bearer $token',
                   'Content-Type': 'application/json',
                   // 'Accept': 'application/json',
                 },

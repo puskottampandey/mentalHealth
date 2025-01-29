@@ -9,13 +9,13 @@ class ReuseableButton extends StatelessWidget {
   final String? text;
   final Color? textcolor;
   final Size? minimumsize;
-  final bool? widgetextra;
   final Widget? child;
+  final bool isloading;
   ReuseableButton({
     super.key,
     this.ontap,
     this.bgcolor,
-    this.widgetextra = false,
+    this.isloading = false,
     Size? minimumSize,
     this.child,
     this.text,
@@ -31,8 +31,12 @@ class ReuseableButton extends StatelessWidget {
           backgroundColor: bgcolor,
         ),
         onPressed: ontap,
-        child: widgetextra!
-            ? child
+        child: isloading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.whiteColor,
+                ),
+              )
             : Text(
                 text!,
                 style: textPoppions.bodyLarge!.copyWith(
