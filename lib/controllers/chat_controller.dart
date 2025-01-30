@@ -32,7 +32,6 @@ class SendMessageConfirmController extends StateNotifier<StateModel> {
             },
             request: "post",
           );
-      print(res.data);
       if (mounted) {
         state = state.copyWith(
             data: res.data["Details"],

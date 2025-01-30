@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppColors {
-  static const Color primaryColor = Colors.blue;
+  static const Color primaryColor =Colors.blue;
   static const Color secondaryColor = Color(0xffEFF4F7);
   static const Color lightGrey = Color(0xffF5F5F5);
   static const Color iconColor = Color(0xff8E8E93);

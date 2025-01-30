@@ -106,13 +106,13 @@ class ChatUserData extends ConsumerWidget {
           children: [
             GestureDetector(
               onTap: () {
+                ref
+                    .read(conversationControllerProvider.notifier)
+                    .getConversations(item.conversationId);
                 context.push("/chat",
                     extra: ConversationData(
                         conversationId: item.conversationId,
                         name: "${item.firstName}${item.lastName}"));
-                ref
-                    .read(conversationControllerProvider.notifier)
-                    .getConversations(item.conversationId);
               },
               child: ListTile(
                 minVerticalPadding: 0,

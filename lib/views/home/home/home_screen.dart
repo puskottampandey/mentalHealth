@@ -246,7 +246,7 @@ class HomeScreen extends ConsumerWidget {
                                         vertical: 6.h, horizontal: 6.w),
                                     decoration: BoxDecoration(
                                         color: const Color.fromARGB(
-                                            255, 49, 157, 245),
+                                            255, 9, 133, 233),
                                         borderRadius:
                                             BorderRadius.circular(8.r)),
                                     child: Text(

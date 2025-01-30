@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mentalhealth/configs/state_model.dart';
 import 'package:mentalhealth/controllers/chat_controller.dart';
+import 'package:mentalhealth/controllers/get_conversation.dart';
+import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:mentalhealth/global/constants/colors_text.dart';
 import 'package:mentalhealth/global/reuseable/scaffold.dart';
 import 'package:mentalhealth/global/services/token_service.dart';
+import 'package:mentalhealth/views/home/home/therapist_data.dart';
 import 'package:signalr_netcore/signalr_client.dart';
+
+import '../../../configs/conversation_history.dart';
+
+final chatMessage = StateProvider((ref) => []);
 
 class ConversationData {
   final String conversationId;
@@ -27,10 +35,11 @@ class ChatScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
+  final ScrollController _scrollController = ScrollController();
   late HubConnection hubConnection;
   TextEditingController messageController = TextEditingController();
-  List<String> messages = [];
 
+  List<Map<String, String>> messages = [];
   @override
   void initState() {
     super.initState();
@@ -53,7 +62,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     hubConnection.on('ReceiveMessage', (arguments) {
       setState(() {
-        messages.insert(0, arguments![1].toString());
+        messages.insert(0, {
+          "sender": arguments![0].toString(),
+          "message": arguments[1].toString()
+        });
       });
       messageController.clear();
     });
@@ -61,131 +73,186 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final details = ref.watch(conversationControllerProvider);
+    final userid = ref.watch(userId);
+    // final ConversationHistoryList feed = details.data;
+    // for (var name in feed.messages) {
+    //   print(name.messageContent.toString());
+    //   messages.add(name.messageContent.toString()); // This will print each name
+    // }
+
     return ReuseableScaffold(
-        appbar: true,
-        text: widget.param.name,
-        back: true,
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  reverse: true,
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 8.w, vertical: 4.h),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Container(
-                            padding: const EdgeInsets.all(12.0),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade100,
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
+      appbar: true,
+      text: widget.param.name,
+      back: true,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                controller:
+                    _scrollController, // Scroll controller for synchronization
+                child: Column(
+                  children: [
+                    Builder(builder: (context) {
+                      switch (details.requestStatus) {
+                        case RequestStatus.initial:
+                          return Center(child: Container());
+                        case RequestStatus.progress:
+                          return Center(child: Container());
+                        case RequestStatus.success:
+                          return HistoryMessage(data: details.data, id: userid);
+                        case RequestStatus.failure:
+                          return Center(
                             child: Text(
-                              messages[index],
-                              style: textPoppions.headlineMedium?.copyWith(
-                                color: AppColors.blackColor,
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
+                              "Something went wrong",
+                              style: textPoppions.titleMedium?.copyWith(
+                                  fontSize: 12.sp,
+                                  color: AppColors.blackColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          );
+                        case RequestStatus.fetchingMore:
+                          return Container();
+                      }
+                    }),
+                    ListView.builder(
+                      controller:
+                          _scrollController, // Same scroll controller to sync scroll
+                      physics: const NeverScrollableScrollPhysics(),
+                      reverse: true,
+                      shrinkWrap: true,
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final msg = messages[index];
+                        bool isMe = msg["sender"] == userid;
+                        return Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 8.w, vertical: 6.h),
+                          child: Align(
+                            alignment: isMe
+                                ? Alignment.centerRight
+                                : Alignment.centerLeft,
+                            child: Container(
+                              padding: const EdgeInsets.all(12.0),
+                              decoration: BoxDecoration(
+                                color: isMe
+                                    ? Colors.blue.shade100
+                                    : Colors.blue.shade300,
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              child: Text(
+                                msg["message"]!,
+                                style: textPoppions.headlineMedium?.copyWith(
+                                  color: AppColors.blackColor,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
-                        ));
-                  },
-                ),
-              ),
-              SizedBox(
-                height: 10.h,
-              ),
-              Container(
-                color: Colors.grey[200],
-                child: Row(
-                  children: [
-                    // Text input
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w),
-                        decoration: BoxDecoration(
-                            color: AppColors.pureWhiteColor,
-                            borderRadius: BorderRadius.circular(8.r)),
-                        child: TextField(
-                          controller: messageController,
-                          decoration: InputDecoration(
-                            hintText: 'Type a message...',
-                            hintStyle: textPoppions.headlineMedium?.copyWith(
-                              color: AppColors.iconColor,
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Send button
-                    IconButton(
-                      icon: const Icon(
-                        Icons.send,
-                        color: AppColors.primaryColor,
-                      ),
-                      onPressed: () {
-                        ref
-                            .read(sendMessageControllerProvider.notifier)
-                            .sendMessage(widget.param.conversationId,
-                                messageController.text);
+                        );
                       },
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-
-          // Column(
-          //   children: [
-          //     Expanded(
-          //       child: ListView.builder(
-          //         itemCount: messages.length,
-          //         itemBuilder: (context, index) {
-          //           return ListTile(
-          //             title: Text(messages[index]),
-          //           );
-          //         },
-          //       ),
-          //     ),
-          //     Padding(
-          //       padding: const EdgeInsets.all(8.0),
-          //       child: Row(
-          //         children: [
-          //           Expanded(
-          //             child: TextField(
-          //               controller: messageController,
-          //               decoration: const InputDecoration(
-          //                 hintText: 'Enter your message',
-          //               ),
-          //             ),
-          //           ),
-          //           IconButton(
-          //             icon: const Icon(Icons.send),
-          //             onPressed: () {
-          //               ref
-          //                   .read(sendMessageControllerProvider.notifier)
-          //                   .sendMessage(widget.param, messageController.text);
-          //             },
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ],
-          // ),
-        ));
+            ),
+            SizedBox(height: 10.h),
+            Container(
+              color: Colors.grey[200],
+              child: Row(
+                children: [
+                  // Text input
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      decoration: BoxDecoration(
+                          color: AppColors.pureWhiteColor,
+                          borderRadius: BorderRadius.circular(8.r)),
+                      child: TextField(
+                        controller: messageController,
+                        decoration: InputDecoration(
+                          hintText: 'Type a message...',
+                          hintStyle: textPoppions.headlineMedium?.copyWith(
+                            color: AppColors.iconColor,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Send button
+                  IconButton(
+                    icon: const Icon(
+                      Icons.send,
+                      color: AppColors.primaryColor,
+                    ),
+                    onPressed: () {
+                      if (messageController.text.trim().isNotEmpty) {
+                        ref
+                            .read(sendMessageControllerProvider.notifier)
+                            .sendMessage(widget.param.conversationId,
+                                messageController.text);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
+class HistoryMessage extends StatelessWidget {
+  final ConversationHistoryList data;
+  final String id;
+  const HistoryMessage({
+    super.key,
+    required this.data,
+    required this.id,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      reverse: true,
+      shrinkWrap: true,
+      itemCount: data.messages.length,
+      itemBuilder: (context, index) {
+        final msg = data.messages[index];
+        bool isMe = msg.senderId == id;
+        return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+            child: Align(
+              alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+              child: Container(
+                padding: const EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  color: isMe ? Colors.blue.shade100 : Colors.blue.shade300,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Text(
+                  data.messages[index].messageContent.toString(),
+                  style: textPoppions.headlineMedium?.copyWith(
+                    color: AppColors.blackColor,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ));
+      },
+    );
+  }
+}
 // class ChatScreen extends StatefulWidget {
 //   final String? data;
 //   const ChatScreen({

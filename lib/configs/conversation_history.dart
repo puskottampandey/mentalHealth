@@ -1,4 +1,4 @@
-ConversationHistoryList authResponseLinkFromJson(Map<String, dynamic> str) =>
+ConversationHistoryList historyLinkFromJson(Map<String, dynamic> str) =>
     ConversationHistoryList.fromJson(str);
 
 class ConversationHistoryList {

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mentalhealth/configs/conversation_history.dart';
 import 'package:mentalhealth/configs/state_model.dart';
 import 'package:mentalhealth/configs/therapist_details_model.dart';
 import 'package:mentalhealth/controllers/signup_controller.dart';
@@ -22,10 +23,10 @@ class ConversationController extends StateNotifier<StateModel> {
             endpoint: "${APIEndpoints.sendMessage}/$conId",
             request: "get",
           );
-      print(res.data);
+
       if (mounted) {
         state = state.copyWith(
-            data: therapistDetailsfromJson(res.data),
+            data: historyLinkFromJson(res.data),
             responseModel: res,
             requestStatus: RequestStatus.success);
       }

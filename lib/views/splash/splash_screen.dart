@@ -41,15 +41,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     return Container(
       color: AppColors.primaryColor,
       child: Center(
-        child: Text(
-          "Mind Master",
-          style: textPoppions.displayLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 20.sp,
-            color: AppColors.pureWhiteColor,
-          ),
-        ),
-      ),
+          child: Image.asset(
+        "assets/images/splash.png",
+        height: 80.h,
+      )),
     );
   }
 }
