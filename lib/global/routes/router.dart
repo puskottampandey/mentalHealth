@@ -78,7 +78,7 @@ final GoRouter router = GoRouter(
         name: RouteConstants.doctorDetails,
         path: '/doctorDetails',
         builder: (context, state) {
-          return const DoctorDetails();
+          return DoctorDetails();
         }),
     GoRoute(
         name: RouteConstants.payment,
@@ -90,8 +90,8 @@ final GoRouter router = GoRouter(
         name: RouteConstants.chat,
         path: '/chat',
         builder: (context, state) {
-          final value = state.extra as String;
-          return ChatScreen(data: value);
+          final param = state.extra as ConversationData;
+          return ChatScreen(param: param);
         }),
     GoRoute(
         name: RouteConstants.multipleChoice,

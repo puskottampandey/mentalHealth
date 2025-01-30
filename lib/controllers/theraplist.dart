@@ -41,42 +41,5 @@ class TherapistListDataController extends StateNotifier<StateModel> {
 }
 
 final therapistListControllerProvider =
-    StateNotifierProvider<TherapistDetailsController, StateModel>(
-        (ref) => TherapistDetailsController(ref));
-
-class TherapistDetailsController extends StateNotifier<StateModel> {
-  TherapistDetailsController(this.ref)
-      : super(StateModel(
-            requestStatus: RequestStatus.initial, message: "Initial"));
-
-  final Ref ref;
-
-  Future<void> therapistDetails(String? id) async {
-    try {
-      ref.read(isloadingProvider.notifier).state = true;
-      state = state.copyWith(requestStatus: RequestStatus.progress);
-      final res = await GetIt.I.get<ApiRepository>().apiRequest(
-            endpoint: "${APIEndpoints.therapist}/$id",
-            request: "get",
-          );
-      print(res.data);
-      if (mounted) {
-        state = state.copyWith(
-            data: therapistDetailsfromJson(res.data),
-            responseModel: res,
-            requestStatus: RequestStatus.success);
-      }
-    } catch (e) {
-      state = state.copyWith(
-        requestStatus: RequestStatus.failure,
-        message: e.toString(),
-      );
-    } finally {
-      ref.read(isloadingProvider.notifier).state = false;
-    }
-  }
-}
-
-final therapistDetailsControllerProvider =
-    StateNotifierProvider<TherapistDetailsController, StateModel>(
-        (ref) => TherapistDetailsController(ref));
+    StateNotifierProvider<TherapistListDataController, StateModel>(
+        (ref) => TherapistListDataController(ref));

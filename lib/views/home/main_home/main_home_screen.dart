@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:mentalhealth/controllers/therapist_user.dart';
 import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
@@ -21,7 +22,7 @@ class MainHomeScreen extends ConsumerWidget {
 
   final List<Widget> screens = [
     HomeScreen(),
-    const NewsScreen(),
+    const ChatScreen(),
     const PersonalScreen(),
     const ProfileScreen(),
   ];
@@ -41,6 +42,7 @@ class MainHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(currentIndexProvider);
+    final id = ref.watch(userId);
     return ReuseableScaffold(
         appbar: true,
         text: "Hey, ${GreetingUtils().greeting()}",
@@ -60,6 +62,11 @@ class MainHomeScreen extends ConsumerWidget {
           currentIndex: currentIndex,
           onTap: (index) async {
             ref.read(currentIndexProvider.notifier).state = index;
+            if (index == 1) {
+              ref
+                  .read(therapistUserControllerProvider.notifier)
+                  .therapistUser(id);
+            }
             if (index == 3) {
               ref.read(userDataControllerProvider.notifier).userData();
             }

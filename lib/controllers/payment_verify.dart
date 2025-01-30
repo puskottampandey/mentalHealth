@@ -5,7 +5,6 @@ import 'package:mentalhealth/controllers/signup_controller.dart';
 import 'package:mentalhealth/global/constants/api_endpoints.dart';
 import 'package:mentalhealth/global/repository/api_repository.dart';
 
-
 class PaymentVerify extends StateNotifier<StateModel> {
   PaymentVerify(this.ref)
       : super(StateModel(
@@ -14,16 +13,13 @@ class PaymentVerify extends StateNotifier<StateModel> {
   final Ref ref;
 
   Future<void> paymentVerify(
-    String? email,
+    String? id,
   ) async {
     try {
       ref.read(isloadingProvider.notifier).state = true;
       state = state.copyWith(requestStatus: RequestStatus.progress);
       final res = await GetIt.I.get<ApiRepository>().apiRequest(
-            endpoint: APIEndpoints.sendemail,
-            data: {
-              "email": email,
-            },
+            endpoint: "${APIEndpoints.paymentLast}/$id",
             request: "post",
           );
 

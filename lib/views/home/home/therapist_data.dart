@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/configs/therapist_details_model.dart';
 import 'package:mentalhealth/configs/therapist_list_model.dart';
+import 'package:mentalhealth/controllers/theraplist_details.dart';
 import 'package:mentalhealth/global/constants/colors_text.dart';
 
 import '../../../controllers/theraplist.dart';
+
+final therapistId = StateProvider((ref) => '');
 
 class TherapistData extends ConsumerWidget {
   final List<TherapistDetailsList> data;
@@ -28,9 +32,10 @@ class TherapistData extends ConsumerWidget {
               GestureDetector(
                 onTap: () {
                   ref
-                      .read(therapistListControllerProvider.notifier)
-                      .therapistList(item.id, true);
-                  // context.push('/doctorDetails');
+                      .read(therapistDetailsControllerProvider.notifier)
+                      .therapistDetails(item.id);
+                  ref.read(therapistId.notifier).state = item.id.toString();
+                  context.push("/doctorDetails");
                 },
                 child: Container(
                   width: 160.w,
@@ -61,7 +66,7 @@ class TherapistData extends ConsumerWidget {
                           child: Column(
                             children: [
                               Text(
-                                "${item.firstName}${item.lastName}",
+                                "${item.firstName} ${item.lastName}",
                                 style: textPoppions.headlineMedium?.copyWith(
                                   fontSize: 10.sp,
                                   fontWeight: FontWeight.w600,

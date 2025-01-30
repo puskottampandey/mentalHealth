@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/configs/therapist_details_model.dart';
+import 'package:mentalhealth/controllers/theraplist_details.dart';
 import 'package:mentalhealth/global/reuseable/button.dart';
 import 'package:mentalhealth/views/doctor_book/confirm_sheet.dart';
+import 'package:mentalhealth/views/home/home/therapist_data.dart';
 
 import '../../global/constants/colors_text.dart';
 
+final therapistId = StateProvider((ref) => '');
 
-class DoctorDetails extends StatefulWidget {
-  const DoctorDetails({super.key});
+class DoctorDetails extends ConsumerWidget {
+  DoctorDetails({super.key});
 
-  @override
-  State<DoctorDetails> createState() => _DoctorDetailsState();
-}
-
-class _DoctorDetailsState extends State<DoctorDetails> {
   List<Map<String, dynamic>> list = [
     {
       "icon": Icons.monitor_heart,
@@ -32,8 +33,10 @@ class _DoctorDetailsState extends State<DoctorDetails> {
       "field": "Rate",
     }
   ];
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final details = ref.watch(therapistDetailsControllerProvider);
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
       bottomNavigationBar: Container(
@@ -71,7 +74,44 @@ class _DoctorDetailsState extends State<DoctorDetails> {
           ),
         ),
       ),
-      body: Column(
+      body: Builder(builder: (context) {
+        switch (details.requestStatus) {
+          case RequestStatus.initial:
+            return Center(child: Container());
+          case RequestStatus.progress:
+            return Center(child: Container());
+          case RequestStatus.success:
+            return DoctorDetailsData(data: details.data);
+          case RequestStatus.failure:
+            return Center(
+              child: Text(
+                "Something went wrong",
+                style: textPoppions.titleMedium?.copyWith(
+                    fontSize: 12.sp,
+                    color: AppColors.blackColor,
+                    fontWeight: FontWeight.bold),
+              ),
+            );
+          case RequestStatus.fetchingMore:
+            return Container();
+        }
+      }),
+    );
+  }
+}
+
+class DoctorDetailsData extends StatelessWidget {
+  final TherapistDetails data;
+  const DoctorDetailsData({
+    super.key,
+    required,
+    required this.data,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
         children: [
           Align(
             alignment: Alignment.center,
@@ -90,69 +130,23 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                     fit: BoxFit.contain,
                   ),
                 ),
-                SizedBox(
-                  height: 120.h,
-                  child: Center(
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: list.length,
-                        itemBuilder: (context, int index) {
-                          final iteam = list[index];
-                          return Container(
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 12.w, vertical: 14.h),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.r)),
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: const BoxDecoration(
-                                    color: Color.fromARGB(255, 91, 177, 247),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    iteam["icon"],
-                                    color: AppColors.whiteColor,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 6.h,
-                                ),
-                                Text(
-                                  iteam["points"],
-                                  style: textPoppions.headlineMedium?.copyWith(
-                                    color: AppColors.whiteColor,
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 2.h,
-                                ),
-                                Text(
-                                  iteam["field"],
-                                  style: textPoppions.headlineMedium?.copyWith(
-                                    color: AppColors.whiteColor,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                )
-                              ],
-                            ),
-                          );
-                        }),
-                  ),
-                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    specialDetails("150+", "Likes", Icons.monitor_heart),
+                    specialDetails(data.yearsOfExperience.toString(),
+                        "Experience", Icons.explore_rounded),
+                    specialDetails("4", "Rate", Icons.rate_review),
+                  ],
+                )
               ],
             ),
           ),
           SizedBox(
             height: 20.h,
           ),
-          Expanded(
-              child: Container(
+          Container(
+            height: MediaQuery.of(context).size.height * 0.6,
             decoration: BoxDecoration(
                 color: AppColors.pureWhiteColor,
                 borderRadius: BorderRadius.only(
@@ -165,7 +159,7 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                   child: Column(
                 children: [
                   Text(
-                    "Dr. Puskottam Pandey",
+                    "${data.firstName} ${data.lastName}",
                     style: textPoppions.headlineMedium?.copyWith(
                       color: AppColors.blackColor,
                       fontSize: 20.sp,
@@ -173,7 +167,7 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                     ),
                   ),
                   Text(
-                    "Psychiatrist-National Medical College",
+                    data.certification.toString(),
                     style: textPoppions.headlineMedium?.copyWith(
                       color: AppColors.iconColor,
                       fontSize: 12.sp,
@@ -203,7 +197,16 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                     height: 10.h,
                   ),
                   Text(
-                    'Dr. [Name] is a highly qualified and experienced [specialization] dedicated to providing compassionate and personalized care. With [X years] of expertise,they are committed to improving your health and well-being through the latest treatments and a patient-first approach.',
+                    '${data.specialization}',
+                    style: textPoppions.headlineMedium?.copyWith(
+                      color: AppColors.iconColor,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.justify,
+                  ),
+                  Text(
+                    '${data.bio}',
                     style: textPoppions.headlineMedium?.copyWith(
                       color: AppColors.iconColor,
                       fontSize: 14.sp,
@@ -214,7 +217,51 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                 ],
               )),
             ),
-          ))
+          )
+        ],
+      ),
+    );
+  }
+
+  Container specialDetails(String first, String second, IconData icon) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8.r)),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 91, 177, 247),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: AppColors.whiteColor,
+            ),
+          ),
+          SizedBox(
+            height: 6.h,
+          ),
+          Text(
+            first,
+            style: textPoppions.headlineMedium?.copyWith(
+              color: AppColors.whiteColor,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(
+            height: 2.h,
+          ),
+          Text(
+            second,
+            style: textPoppions.headlineMedium?.copyWith(
+              color: AppColors.whiteColor,
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          )
         ],
       ),
     );

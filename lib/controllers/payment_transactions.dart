@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:mentalhealth/configs/auth_response_model.dart';
 import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/controllers/payment_verify.dart';
 import 'package:mentalhealth/controllers/signup_controller.dart';
 import 'package:mentalhealth/global/constants/api_endpoints.dart';
 import 'package:mentalhealth/global/repository/api_repository.dart';
@@ -15,20 +16,33 @@ class PaymentTransactionsController extends StateNotifier<StateModel> {
 
   final Ref ref;
 
-  Future<void> paymentTrasactions(
-    String? email,
-  ) async {
+  Future<void> paymentTrasactions({
+    String? id,
+    String? therapistId,
+    String? productId,
+    String? prductName,
+    int? amount,
+    String? referenceId,
+  }) async {
     try {
       ref.read(isloadingProvider.notifier).state = true;
       state = state.copyWith(requestStatus: RequestStatus.progress);
       final res = await GetIt.I.get<ApiRepository>().apiRequest(
-            endpoint: APIEndpoints.sendemail,
+            endpoint: APIEndpoints.payment,
             data: {
-              "email": email,
+              "userId": id,
+              "therapistId": therapistId,
+              "productId": productId,
+              "productName": prductName,
+              "amount": amount,
+              "referenceId": referenceId,
+              "subscriptionType": 0
             },
             request: "post",
           );
-
+      ref
+          .read(paymentVerifyControllerProvider.notifier)
+          .paymentVerify(referenceId);
       if (mounted) {
         state = state.copyWith(
             data: res.data["Details"],

@@ -59,22 +59,25 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ReusableFormField(
-                onTap: () {
-                  context.push("/search");
-                },
-                readonly: true,
-                controller: TextEditingController(),
-                prefix: Icons.search,
-                hint: "Search .........",
-                sufixIcon: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor,
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: const Icon(
-                    Icons.filter_list,
-                    color: AppColors.whiteColor,
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                decoration: BoxDecoration(
+                    color: AppColors.pureWhiteColor,
+                    borderRadius: BorderRadius.circular(8.r)),
+                child: TextField(
+                  readOnly: true,
+                  onTap: () {
+                    context.push('/search');
+                  },
+                  controller: TextEditingController(),
+                  decoration: InputDecoration(
+                    hintText: 'Search......',
+                    hintStyle: textPoppions.headlineMedium?.copyWith(
+                      color: AppColors.iconColor,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    border: InputBorder.none,
                   ),
                 ),
               ),
@@ -89,9 +92,9 @@ class HomeScreen extends ConsumerWidget {
               Builder(builder: (context) {
                 switch (details.requestStatus) {
                   case RequestStatus.initial:
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(child: Container());
                   case RequestStatus.progress:
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(child: Container());
                   case RequestStatus.success:
                     return TherapistData(data: details.data);
                   case RequestStatus.failure:
@@ -108,7 +111,6 @@ class HomeScreen extends ConsumerWidget {
                     return Container();
                 }
               }),
-            
               Text(
                 "Services",
                 style: textPoppions.headlineMedium

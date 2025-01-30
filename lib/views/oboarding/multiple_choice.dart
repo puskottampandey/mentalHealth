@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/controllers/theraplist.dart';
+import 'package:mentalhealth/controllers/user_data.dart';
 
 import '../../global/constants/colors_text.dart';
 import '../../global/reuseable/button.dart';
@@ -258,6 +259,9 @@ class _PHQ9ScreenState extends ConsumerState<PHQ9Screen> {
                                   .read(
                                       therapistListControllerProvider.notifier)
                                   .therapistList();
+                              ref
+                                  .read(userDataControllerProvider.notifier)
+                                  .userData();
                               context.push("/myApp");
                             },
                             child: Text(

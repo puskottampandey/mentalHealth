@@ -10,4 +10,6 @@ class APIEndpoints {
   static const String therapistUser = "/Therapist/User";
   static const String payment = "/Payment/transactions";
   static const String paymentLast = "/Payment/Verify";
+  static const String mytherapist = "/Therapist/my-therapist";
+  static const String sendMessage = "/Conversations";
 }
