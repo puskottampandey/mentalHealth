@@ -12,4 +12,14 @@ class APIEndpoints {
   static const String paymentLast = "/Payment/Verify";
   static const String mytherapist = "/Therapist/my-therapist";
   static const String sendMessage = "/Conversations";
+  static const String sleepHistory = "/Mood/sleep-history";
+  static const String moodTrends = "/Mood/mood-trends";
+  static const String exerciseMin = "/Mood/exercise-minutes";
+  static const String reportMin = "/Mood/download-mood-report";
+  static const String posts = "/posts";
+  static const String getposts = "/posts";
+  static const String likeposts = "/posts/like-post";
+  static const String unlikeposts = "/posts/unlike-post";
+  static const String commentposts = "/posts/comment-post";
+  static const String mood = "/Mood";
 }

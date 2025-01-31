@@ -75,12 +75,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget build(BuildContext context) {
     final details = ref.watch(conversationControllerProvider);
     final userid = ref.watch(userId);
-    // final ConversationHistoryList feed = details.data;
-    // for (var name in feed.messages) {
-    //   print(name.messageContent.toString());
-    //   messages.add(name.messageContent.toString()); // This will print each name
-    // }
-
+  
     return ReuseableScaffold(
       appbar: true,
       text: widget.param.name,

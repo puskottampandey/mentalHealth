@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:mentalhealth/global/constants/colors_text.dart';
 import 'package:mentalhealth/global/services/token_service.dart';
 
@@ -28,8 +29,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           // ignore: use_build_context_synchronously
           context.go("/signIn");
         } else {
+          ref.read(userDataControllerProvider.notifier).userData();
           // ignore: use_build_context_synchronously
-          context.go("/multipleChoice");
+          context.go("/moodPost");
         }
         // ignore: use_build_context_synchronously
       }

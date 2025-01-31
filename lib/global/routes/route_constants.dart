@@ -12,4 +12,5 @@ class RouteConstants {
   static String payment = "payment";
   static String chat = "chat";
   static String multipleChoice = "multipleChoice";
+  static String postMood = "postMood";
 }

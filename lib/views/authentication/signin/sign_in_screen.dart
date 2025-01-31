@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/configs/state_model.dart';
 import 'package:mentalhealth/controllers/login_controller.dart';
+import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:mentalhealth/global/reuseable/snackbar.dart';
 import 'package:mentalhealth/views/authentication/signup/sign_up_screen.dart';
 
@@ -31,7 +32,8 @@ class SignInScreen extends ConsumerWidget {
       }
       if (next.requestStatus == RequestStatus.success) {
         SnackBars.successSnackbar(context, "Login successful!");
-        context.go("/multipleChoice");
+        ref.read(userDataControllerProvider.notifier).userData();
+        context.go("/moodPost");
       }
     });
     return Consumer(builder: (context, ref, child) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:mentalhealth/controllers/get_post_controller.dart';
 import 'package:mentalhealth/controllers/therapist_user.dart';
 import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
@@ -23,7 +24,7 @@ class MainHomeScreen extends ConsumerWidget {
   final List<Widget> screens = [
     HomeScreen(),
     const ChatScreen(),
-    const PersonalScreen(),
+    const CommunityScreen(),
     const ProfileScreen(),
   ];
 
@@ -66,6 +67,9 @@ class MainHomeScreen extends ConsumerWidget {
               ref
                   .read(therapistUserControllerProvider.notifier)
                   .therapistUser(id);
+            }
+            if (index == 2) {
+              ref.read(postListControllerProvider.notifier).getPostList();
             }
             if (index == 3) {
               ref.read(userDataControllerProvider.notifier).userData();

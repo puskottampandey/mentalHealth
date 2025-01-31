@@ -1,17 +1,24 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:mentalhealth/configs/mood_model.dart';
 import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/controllers/mood_controller.dart';
 import 'package:mentalhealth/controllers/theraplist.dart';
+import 'package:mentalhealth/global/reuseable/buider_class.dart';
 import 'package:mentalhealth/global/reuseable/formfield.dart';
 import 'package:mentalhealth/views/home/home/therapist_data.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../global/constants/colors_text.dart';
+
+final indexTap = StateProvider((ref) => 0);
 
 class HomeScreen extends ConsumerWidget {
   HomeScreen({super.key});
@@ -20,6 +27,12 @@ class HomeScreen extends ConsumerWidget {
     "Appointment",
     "Medicine",
   ];
+  final List<String> list = [
+    "Sleep History",
+    "Mood Trends",
+    "Exercise Min.",
+  ];
+
   final List<Map<String, dynamic>> _listHealth = [
     {
       "image": "assets/images/image1.jpg",
@@ -51,6 +64,10 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final details = ref.watch(therapistListControllerProvider);
+    final chart = ref.watch(moodControllerProvider);
+    final chartmood = ref.watch(moodTrendsControllerProvider);
+    final min = ref.watch(exerciseControllerProvider);
+    final tapIndex = ref.watch(indexTap);
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       body: Padding(
@@ -59,28 +76,126 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                decoration: BoxDecoration(
-                    color: AppColors.pureWhiteColor,
-                    borderRadius: BorderRadius.circular(8.r)),
-                child: TextField(
-                  readOnly: true,
-                  onTap: () {
-                    context.push('/search');
-                  },
-                  controller: TextEditingController(),
-                  decoration: InputDecoration(
-                    hintText: 'Search......',
-                    hintStyle: textPoppions.headlineMedium?.copyWith(
-                      color: AppColors.iconColor,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    border: InputBorder.none,
-                  ),
-                ),
+              Text(
+                "Your Personal History",
+                style: textPoppions.titleMedium?.copyWith(
+                    fontSize: 16.sp,
+                    color: AppColors.blackColor,
+                    fontWeight: FontWeight.bold),
               ),
+              SizedBox(
+                height: 10.h,
+              ),
+              SizedBox(
+                height: 30.h,
+                child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: list.length,
+                    itemBuilder: (context, int index) {
+                      final item = list[index];
+                      return GestureDetector(
+                        onTap: () {
+                          ref.read(indexTap.notifier).state = index;
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w),
+                          margin: EdgeInsets.symmetric(horizontal: 10.w),
+                          decoration: BoxDecoration(
+                              color: tapIndex == index
+                                  ? AppColors.primaryColor
+                                  : AppColors.greyColor,
+                              borderRadius: BorderRadius.circular(8.r)),
+                          child: Center(
+                            child: Text(
+                              item,
+                              style: textPoppions.titleMedium?.copyWith(
+                                  fontSize: 12.sp,
+                                  color: tapIndex == index
+                                      ? AppColors.whiteColor
+                                      : AppColors.primaryColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+              ),
+              SizedBox(
+                height: 10.h,
+              ),
+              tapIndex == 0
+                  ? Builder(builder: (context) {
+                      switch (chart.requestStatus) {
+                        case RequestStatus.initial:
+                          return Center(child: Container());
+                        case RequestStatus.progress:
+                          return Center(child: Container());
+                        case RequestStatus.success:
+                          return ChartLine(data: chart.data);
+                        case RequestStatus.failure:
+                          print(chart.message.toString);
+                          return Center(
+                            child: Text(
+                              "Something went wrong",
+                              style: textPoppions.titleMedium?.copyWith(
+                                  fontSize: 12.sp,
+                                  color: AppColors.blackColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          );
+                        case RequestStatus.fetchingMore:
+                          return Container();
+                      }
+                    })
+                  : Container(),
+              tapIndex == 1
+                  ? Builder(builder: (context) {
+                      switch (chartmood.requestStatus) {
+                        case RequestStatus.initial:
+                          return Center(child: Container());
+                        case RequestStatus.progress:
+                          return Center(child: Container());
+                        case RequestStatus.success:
+                          return MoodChartLine(data: chartmood.data);
+                        case RequestStatus.failure:
+                          return Center(
+                            child: Text(
+                              "Something went wrong",
+                              style: textPoppions.titleMedium?.copyWith(
+                                  fontSize: 12.sp,
+                                  color: AppColors.blackColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          );
+                        case RequestStatus.fetchingMore:
+                          return Container();
+                      }
+                    })
+                  : Container(),
+              tapIndex == 2
+                  ? Builder(builder: (context) {
+                      switch (min.requestStatus) {
+                        case RequestStatus.initial:
+                          return Center(child: Container());
+                        case RequestStatus.progress:
+                          return Center(child: Container());
+                        case RequestStatus.success:
+                          return ExerciseChartLine(data: min.data);
+                        case RequestStatus.failure:
+                          return Center(
+                            child: Text(
+                              "Something went wrong",
+                              style: textPoppions.titleMedium?.copyWith(
+                                  fontSize: 12.sp,
+                                  color: AppColors.blackColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          );
+                        case RequestStatus.fetchingMore:
+                          return Container();
+                      }
+                    })
+                  : Container(),
               SizedBox(
                 height: 10.h,
               ),
@@ -339,6 +454,279 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
+class ChartLine extends StatelessWidget {
+  final List<SleepHistory> data;
+  const ChartLine({
+    super.key,
+    required this.data,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 200.h,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: LineChart(LineChartData(
+            minX: 0,
+            maxX: data.length.toDouble() - 1,
+            minY: 5,
+            maxY: 20,
+            borderData: FlBorderData(
+              show: true,
+              border: const Border(
+                top: BorderSide(color: Colors.red, width: 2),
+                bottom: BorderSide(color: Colors.blue, width: 3),
+                left: BorderSide(color: Colors.green, width: 2),
+                right: BorderSide(color: Colors.orange, width: 3),
+              ),
+            ),
+            lineBarsData: [
+              LineChartBarData(
+                spots: List.generate(
+                  data.length,
+                  (index) => FlSpot(
+                    index
+                        .toDouble(), // X-axis: index (or you can use timestamps)
+                    data[index].sleepHours!.toDouble(), // Y-axis: Sleep hours
+                  ),
+                ),
+                isCurved: true,
+                barWidth: 4,
+                belowBarData: BarAreaData(
+                  show: true,
+                ),
+                isStrokeCapRound: true,
+                dotData: const FlDotData(show: true),
+              ),
+            ],
+            titlesData: FlTitlesData(
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: false,
+                ),
+              ),
+              leftTitles: const AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 30,
+                ),
+              ),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: false,
+                  reservedSize: 30,
+                ),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, meta) {
+                    int index = value.toInt();
+                    DateTime parsedDate =
+                        DateTime.parse(data[index].date.toString())
+                            .toLocal(); // Convert to local time
+                    String formattedDate =
+                        DateFormat("dd MMM").format(parsedDate);
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        formattedDate,
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          )),
+        ));
+  }
+}
+
+class MoodChartLine extends StatelessWidget {
+  final List<MoodTreads> data;
+  const MoodChartLine({
+    super.key,
+    required this.data,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 200.h,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: LineChart(LineChartData(
+            minX: 0,
+            maxX: data.length.toDouble() - 1,
+            minY: 5,
+            maxY: 20,
+            borderData: FlBorderData(
+              show: true,
+              border: const Border(
+                top: BorderSide(color: Colors.red, width: 2),
+                bottom: BorderSide(color: Colors.blue, width: 3),
+                left: BorderSide(color: Colors.green, width: 2),
+                right: BorderSide(color: Colors.orange, width: 3),
+              ),
+            ),
+            lineBarsData: [
+              LineChartBarData(
+                spots: List.generate(
+                  data.length,
+                  (index) => FlSpot(
+                    index
+                        .toDouble(), // X-axis: index (or you can use timestamps)
+                    data[index]
+                        .moodIntensity!
+                        .toDouble(), // Y-axis: Sleep hours
+                  ),
+                ),
+                isCurved: true,
+                barWidth: 4,
+                belowBarData: BarAreaData(
+                  show: true,
+                ),
+                isStrokeCapRound: true,
+                dotData: const FlDotData(show: true),
+              ),
+            ],
+            titlesData: FlTitlesData(
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: false,
+                ),
+              ),
+              leftTitles: const AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 30,
+                ),
+              ),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: false,
+                  reservedSize: 30,
+                ),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, meta) {
+                    int index = value.toInt();
+                    DateTime parsedDate =
+                        DateTime.parse(data[index].date.toString())
+                            .toLocal(); // Convert to local time
+                    String formattedDate =
+                        DateFormat("dd MMM").format(parsedDate);
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        formattedDate,
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          )),
+        ));
+  }
+}
+
+class ExerciseChartLine extends StatelessWidget {
+  final List<ExerciseMin> data;
+  const ExerciseChartLine({
+    super.key,
+    required this.data,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 200.h,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: LineChart(LineChartData(
+            minX: 0,
+            maxX: data.length.toDouble() - 1,
+            minY: 5,
+            maxY: 200,
+            borderData: FlBorderData(
+              show: true,
+              border: const Border(
+                top: BorderSide(color: Colors.red, width: 2),
+                bottom: BorderSide(color: Colors.blue, width: 3),
+                left: BorderSide(color: Colors.green, width: 2),
+                right: BorderSide(color: Colors.orange, width: 3),
+              ),
+            ),
+            lineBarsData: [
+              LineChartBarData(
+                spots: List.generate(
+                  data.length,
+                  (index) => FlSpot(
+                    index
+                        .toDouble(), // X-axis: index (or you can use timestamps)
+                    data[index]
+                        .exerciseMinutes!
+                        .toDouble(), // Y-axis: Sleep hours
+                  ),
+                ),
+                isCurved: true,
+                barWidth: 4,
+                belowBarData: BarAreaData(
+                  show: true,
+                ),
+                isStrokeCapRound: true,
+                dotData: const FlDotData(show: true),
+              ),
+            ],
+            titlesData: FlTitlesData(
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: false,
+                ),
+              ),
+              leftTitles: const AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 30,
+                ),
+              ),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: false,
+                  reservedSize: 30,
+                ),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, meta) {
+                    int index = value.toInt();
+                    DateTime parsedDate =
+                        DateTime.parse(data[index].date.toString())
+                            .toLocal(); // Convert to local time
+                    String formattedDate =
+                        DateFormat("dd MMM").format(parsedDate);
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        formattedDate,
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          )),
+        ));
+  }
+}
 // import 'package:fl_chart/fl_chart.dart';
 
 // class HomeScreen extends StatefulWidget {

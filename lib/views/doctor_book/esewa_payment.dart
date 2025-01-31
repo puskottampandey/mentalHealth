@@ -3,10 +3,10 @@ import 'package:esewa_flutter_sdk/esewa_flutter_sdk.dart';
 import 'package:esewa_flutter_sdk/esewa_payment.dart';
 import 'package:esewa_flutter_sdk/esewa_payment_success_result.dart';
 import 'package:flutter/foundation.dart';
+// ignore: implementation_imports
 import 'package:flutter_riverpod/src/consumer.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/controllers/payment_transactions.dart';
-import 'package:mentalhealth/controllers/payment_verify.dart';
 import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:mentalhealth/global/reuseable/snackbar.dart';
 import 'package:mentalhealth/global/routes/router.dart';

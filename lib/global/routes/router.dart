@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/global/routes/route_constants.dart';
+import 'package:mentalhealth/views/doctor_book/mood_post_screen.dart';
 import 'package:mentalhealth/views/oboarding/multiple_choice.dart';
 import '../../views/authentication/forgot_password/forgot_password.dart';
 import '../../views/authentication/forgot_password/reset_password_screen.dart';
@@ -98,6 +99,12 @@ final GoRouter router = GoRouter(
         path: '/multipleChoice',
         builder: (context, state) {
           return const PHQ9Screen();
+        }),
+    GoRoute(
+        name: RouteConstants.postMood,
+        path: '/postMood,',
+        builder: (context, state) {
+          return const MoodPost();
         }),
   ],
 );

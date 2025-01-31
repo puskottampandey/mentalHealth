@@ -5,10 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/configs/chat_list_model.dart';
 import 'package:mentalhealth/configs/state_model.dart';
 import 'package:mentalhealth/controllers/get_conversation.dart';
+import 'package:mentalhealth/controllers/get_reports.dart';
 import 'package:mentalhealth/controllers/therapist_user.dart';
 import 'package:mentalhealth/global/constants/colors_text.dart';
 import 'package:mentalhealth/global/reuseable/formfield.dart';
 import 'package:mentalhealth/views/home/chat/chat_screen.dart';
+
+import '../../../controllers/user_data.dart';
 
 class ChatScreen extends ConsumerWidget {
   const ChatScreen({super.key});
@@ -16,6 +19,7 @@ class ChatScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final details = ref.watch(therapistUserControllerProvider);
+    final id = ref.watch(userId);
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       body: Padding(
@@ -24,12 +28,29 @@ class ChatScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Chats",
-                style: textPoppions.titleMedium?.copyWith(
-                    fontSize: 20.sp,
-                    color: AppColors.blackColor,
-                    fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Chats",
+                    style: textPoppions.titleMedium?.copyWith(
+                        fontSize: 20.sp,
+                        color: AppColors.blackColor,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      ref.read(reportControllerProvider.notifier).getReport(id);
+                    },
+                    child: Text(
+                      "Reports",
+                      style: textPoppions.titleMedium?.copyWith(
+                          fontSize: 16.sp,
+                          color: AppColors.blackColor,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(
                 height: 12.h,
