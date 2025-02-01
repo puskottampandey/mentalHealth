@@ -23,8 +23,7 @@ class ReportControllerPHQ extends StateNotifier<StateModel> {
       final dio = Dio();
 
       // String filePath = "${(await getExternalStorageDirectory())!.path}/file";
-      final filePath =
-          "${(await getExternalStorageDirectory())!}/PHQ9_Report_$id.xlsx";
+      final filePath = "${(await getExternalStorageDirectory())!.path}/fileP";
       await dio.download(
         "https://mint-publicly-seagull.ngrok-free.app/api/Phq9Questionnaires/download-phq9-report/$id",
         filePath,

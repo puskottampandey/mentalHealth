@@ -16,13 +16,14 @@ class TherapistDetailsController extends StateNotifier<StateModel> {
 
   Future<void> therapistDetails(String? id) async {
     try {
+      print("hello");
       ref.read(isloadingProvider.notifier).state = true;
       state = state.copyWith(requestStatus: RequestStatus.progress);
       final res = await GetIt.I.get<ApiRepository>().apiRequest(
             endpoint: "${APIEndpoints.therapist}/$id",
             request: "get",
           );
-
+      print(res.data);
       if (mounted) {
         state = state.copyWith(
             data: therapistDetailsfromJson(res.data),
@@ -30,6 +31,7 @@ class TherapistDetailsController extends StateNotifier<StateModel> {
             requestStatus: RequestStatus.success);
       }
     } catch (e) {
+      print(e);
       state = state.copyWith(
         requestStatus: RequestStatus.failure,
         message: e.toString(),

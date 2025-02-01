@@ -67,7 +67,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final details = ref.watch(therapistListControllerProvider);
-    final chart = ref.watch(moodControllerProvider);
+    final chart = ref.watch(sleepControllerProvider);
     final chartmood = ref.watch(moodTrendsControllerProvider);
     final min = ref.watch(exerciseControllerProvider);
     final tapIndex = ref.watch(indexTap);
@@ -222,48 +222,44 @@ class HomeScreen extends ConsumerWidget {
               SizedBox(
                 height: 10.h,
               ),
-
-              data!.roles.isEmpty || data.roles.contains("User")
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Specialist",
-                          style: textPoppions.headlineMedium?.copyWith(
-                              fontSize: 16.sp, fontWeight: FontWeight.w600),
-                        ),
-                        Builder(builder: (context) {
-                          switch (details.requestStatus) {
-                            case RequestStatus.initial:
-                              return const Center(
-                                  child: CircularProgressIndicator(
-                                color: AppColors.primaryColor,
-                              ));
-                            case RequestStatus.progress:
-                              return const Center(
-                                  child: CircularProgressIndicator(
-                                color: AppColors.primaryColor,
-                              ));
-                            case RequestStatus.success:
-                              return TherapistData(data: details.data);
-                            case RequestStatus.failure:
-                              return Center(
-                                child: Text(
-                                  "Something went wrong",
-                                  style: textPoppions.titleMedium?.copyWith(
-                                      fontSize: 12.sp,
-                                      color: AppColors.blackColor,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              );
-                            case RequestStatus.fetchingMore:
-                              return Container();
-                          }
-                        }),
-                      ],
-                    )
-                  : Container(),
-              // : Container(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Specialist",
+                    style: textPoppions.headlineMedium?.copyWith(
+                        fontSize: 16.sp, fontWeight: FontWeight.w600),
+                  ),
+                  Builder(builder: (context) {
+                    switch (details.requestStatus) {
+                      case RequestStatus.initial:
+                        return const Center(
+                            child: CircularProgressIndicator(
+                          color: AppColors.primaryColor,
+                        ));
+                      case RequestStatus.progress:
+                        return const Center(
+                            child: CircularProgressIndicator(
+                          color: AppColors.primaryColor,
+                        ));
+                      case RequestStatus.success:
+                        return TherapistData(data: details.data);
+                      case RequestStatus.failure:
+                        return Center(
+                          child: Text(
+                            "Something went wrong",
+                            style: textPoppions.titleMedium?.copyWith(
+                                fontSize: 12.sp,
+                                color: AppColors.blackColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        );
+                      case RequestStatus.fetchingMore:
+                        return Container();
+                    }
+                  }),
+                ],
+              ),
               Text(
                 "Services",
                 style: textPoppions.headlineMedium

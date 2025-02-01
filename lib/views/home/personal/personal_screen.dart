@@ -97,7 +97,7 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                   case RequestStatus.failure:
                     return Center(
                       child: Text(
-                        "Something went wrong",
+                        "No post list ",
                         style: textPoppions.titleMedium?.copyWith(
                             fontSize: 12.sp,
                             color: AppColors.blackColor,

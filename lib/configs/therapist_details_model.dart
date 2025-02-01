@@ -16,7 +16,6 @@ class TherapistDetails {
     required this.firstName,
     required this.lastName,
     required this.isEligible,
-    required this.fee,
   });
 
   final String id;
@@ -32,7 +31,6 @@ class TherapistDetails {
   final String firstName;
   final String lastName;
   final bool isEligible;
-  final double fee;
 
   factory TherapistDetails.fromJson(Map<String, dynamic> json) {
     return TherapistDetails(
@@ -45,11 +43,10 @@ class TherapistDetails {
       userName: json["userName"] ?? '',
       email: json["email"] ?? '',
       phoneNumber: json["phoneNumber"] ?? '',
-      profilePictureUrl: json["profilePictureUrl"],
+      profilePictureUrl: json["profilePictureUrl"] ?? '',
       firstName: json["firstName"] ?? '',
       lastName: json["lastName"] ?? '',
       isEligible: json["isEligible"] ?? false,
-      fee: json["fee"] ?? 0,
     );
   }
 }

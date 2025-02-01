@@ -41,6 +41,7 @@ class MoodPostController extends StateNotifier<StateModel> {
             },
             request: "post",
           );
+          
       if (mounted) {
         state = state.copyWith(
             data: res.data["Details"],

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/controllers/mood_controller.dart';
 import 'package:mentalhealth/controllers/post_mood.dart';
 import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:mentalhealth/global/constants/colors_text.dart';
@@ -45,8 +46,11 @@ class _MoodPostState extends ConsumerState<MoodPost> {
       }
       if (next.requestStatus == RequestStatus.success) {
         SnackBars.successSnackbar(context, "Mood post successful!");
-
-        context.push('/myApp');
+        await ref.read(sleepControllerProvider.notifier).getSleep(id);
+        await ref.read(moodTrendsControllerProvider.notifier).getmood(id);
+        await ref.read(exerciseControllerProvider.notifier).getExercise(id);
+        // ignore: use_build_context_synchronously
+        context.go('/myApp');
       }
     });
     return Consumer(builder: (context, ref, child) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/configs/user_model.dart';
 import 'package:mentalhealth/controllers/chat_controller.dart';
 import 'package:mentalhealth/controllers/get_conversation.dart';
 import 'package:mentalhealth/controllers/get_phq_report.dart';
@@ -22,7 +23,10 @@ class ConversationData {
   final String conversationId;
   final String name;
 
-  ConversationData({required this.conversationId, required this.name});
+  ConversationData({
+    required this.conversationId,
+    required this.name,
+  });
 }
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -83,78 +87,85 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final userid = ref.watch(userId);
     final isLoading = ref.watch(reportLoading);
     final progress = ref.watch(progressProvider);
+    final otherid = ref.watch(otherId);
+    final roles = ref.watch(userDataControllerProvider);
 
+    final UserData? data = roles.data;
     return ReuseableScaffold(
       appbar: true,
       text: widget.param.name,
       back: true,
       actions: [
-        PopupMenuButton<String>(
-          color: AppColors.whiteColor,
-          icon: const Icon(
-            Icons.more_vert,
-            color: AppColors.blackColor,
-          ),
-          onSelected: (String value) {
-            // Handle the menu selection here.
-            switch (value) {
-              case 'Mood Reports':
-                ref.read(reportControllerProvider.notifier).getReport(userid);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(
-                    'Mood Reports Downloading.....',
-                    style: textPoppions.titleMedium?.copyWith(
-                        fontSize: 12.sp,
-                        color: AppColors.whiteColor,
-                        fontWeight: FontWeight.bold),
-                  )),
-                );
-                break;
-              case 'PHQ9 reports':
-                ref
-                    .read(reportPHQControllerProvider.notifier)
-                    .getReportPhq(userid);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(
-                    'PHQ9 reports Downloading.....',
-                    style: textPoppions.titleMedium?.copyWith(
-                        fontSize: 12.sp,
-                        color: AppColors.whiteColor,
-                        fontWeight: FontWeight.bold),
-                  )),
-                );
-
-                break;
-            }
-          },
-          itemBuilder: (BuildContext context) {
-            return [
-              PopupMenuItem<String>(
-                value: 'Mood Reports',
-                child: Text(
-                  'Mood Reports',
-                  style: textPoppions.titleMedium?.copyWith(
-                      fontSize: 12.sp,
-                      color: AppColors.blackColor,
-                      fontWeight: FontWeight.bold),
+        data!.roles.contains("Therapist")
+            ? PopupMenuButton<String>(
+                color: AppColors.whiteColor,
+                icon: const Icon(
+                  Icons.more_vert,
+                  color: AppColors.blackColor,
                 ),
-              ),
-              PopupMenuItem<String>(
-                value: 'PHQ9 reports',
-                child: Text(
-                  'PHQ9 reports',
-                  style: textPoppions.titleMedium?.copyWith(
-                      fontSize: 12.sp,
-                      color: AppColors.blackColor,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            ];
-          },
-        ),
+                onSelected: (String value) {
+                  // Handle the menu selection here.
+                  switch (value) {
+                    case 'Mood Reports':
+                      ref
+                          .read(reportControllerProvider.notifier)
+                          .getReport(otherid);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text(
+                          'Mood Reports Downloading.....',
+                          style: textPoppions.titleMedium?.copyWith(
+                              fontSize: 12.sp,
+                              color: AppColors.whiteColor,
+                              fontWeight: FontWeight.bold),
+                        )),
+                      );
+                      break;
+                    case 'PHQ9 reports':
+                      ref
+                          .read(reportPHQControllerProvider.notifier)
+                          .getReportPhq(otherid);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text(
+                          'PHQ9 reports Downloading.....',
+                          style: textPoppions.titleMedium?.copyWith(
+                              fontSize: 12.sp,
+                              color: AppColors.whiteColor,
+                              fontWeight: FontWeight.bold),
+                        )),
+                      );
+
+                      break;
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    PopupMenuItem<String>(
+                      value: 'Mood Reports',
+                      child: Text(
+                        'Mood Reports',
+                        style: textPoppions.titleMedium?.copyWith(
+                            fontSize: 12.sp,
+                            color: AppColors.blackColor,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'PHQ9 reports',
+                      child: Text(
+                        'PHQ9 reports',
+                        style: textPoppions.titleMedium?.copyWith(
+                            fontSize: 12.sp,
+                            color: AppColors.blackColor,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ];
+                },
+              )
+            : Container(),
       ],
       child: Stack(children: [
         Padding(

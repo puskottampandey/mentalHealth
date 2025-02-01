@@ -31,7 +31,7 @@ class UserDataController extends StateNotifier<StateModel> {
 
       final id = ref.watch(userId);
       await ref.read(therapistListControllerProvider.notifier).therapistList();
-      await ref.read(moodControllerProvider.notifier).getSleep(id);
+      await ref.read(sleepControllerProvider.notifier).getSleep(id);
       await ref.read(moodTrendsControllerProvider.notifier).getmood(id);
       await ref.read(exerciseControllerProvider.notifier).getExercise(id);
       await ref.read(newsListControllerProvider.notifier).newsList();

@@ -241,7 +241,6 @@ class _PHQ9ScreenState extends ConsumerState<PHQ9Screen> {
                           setState(() {
                             isLoading = false;
                           });
-                          
 
                           showDialog(
                               // ignore: use_build_context_synchronously
@@ -277,7 +276,7 @@ class _PHQ9ScreenState extends ConsumerState<PHQ9Screen> {
                                   actions: [
                                     TextButton(
                                       onPressed: () {
-                                        context.push("/myApp");
+                                        context.go("/myApp");
                                       },
                                       child: Text(
                                         "Ok",

@@ -75,10 +75,9 @@ class ChatScreen extends ConsumerWidget {
                   case RequestStatus.success:
                     return ChatUserData(data: details.data);
                   case RequestStatus.failure:
-                    print(details.message);
                     return Center(
                       child: Text(
-                        "Something went wrong",
+                        "No chat list ",
                         style: textPoppions.titleMedium?.copyWith(
                             fontSize: 12.sp,
                             color: AppColors.blackColor,

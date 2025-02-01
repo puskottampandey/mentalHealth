@@ -9,8 +9,8 @@ import 'package:mentalhealth/global/constants/api_endpoints.dart';
 
 import '../global/repository/api_repository.dart';
 
-class MoodController extends StateNotifier<StateModel> {
-  MoodController(this.ref)
+class SleepController extends StateNotifier<StateModel> {
+  SleepController(this.ref)
       : super(StateModel(
             requestStatus: RequestStatus.initial, message: "Initial"));
 
@@ -42,9 +42,9 @@ class MoodController extends StateNotifier<StateModel> {
   }
 }
 
-final moodControllerProvider =
-    StateNotifierProvider<MoodController, StateModel>(
-        (ref) => MoodController(ref));
+final sleepControllerProvider =
+    StateNotifierProvider<SleepController, StateModel>(
+        (ref) => SleepController(ref));
 
 class MoodTrendsController extends StateNotifier<StateModel> {
   MoodTrendsController(this.ref)
