@@ -10,8 +10,8 @@ class AuthResponse {
   });
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
-      token: json['token'],
-      expiry: json['expiry'],
+      token: json['token']?? '',
+      expiry: json['expiry']?? '',
     );
   }
 }

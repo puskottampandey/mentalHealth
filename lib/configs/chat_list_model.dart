@@ -26,8 +26,8 @@ class ChatList {
   final int? yearsOfExperience;
   final String? userName;
   final String? email;
-  final dynamic phoneNumber;
-  final dynamic profilePictureUrl;
+  final String? phoneNumber;
+  final String? profilePictureUrl;
   final String? firstName;
   final String? lastName;
   final String conversationId;
@@ -38,7 +38,7 @@ class ChatList {
         certification: json["certification"] ?? "",
         specialization: json["specialization"] ?? '',
         bio: json["bio"] ?? '',
-        yearsOfExperience: json["yearsOfExperience"] ?? '',
+        yearsOfExperience: json["yearsOfExperience"] ?? 0,
         userName: json["userName"] ?? "",
         email: json["email"] ?? "",
         phoneNumber: json["phoneNumber"] ?? "",

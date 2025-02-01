@@ -46,7 +46,7 @@ class _MoodPostState extends ConsumerState<MoodPost> {
       if (next.requestStatus == RequestStatus.success) {
         SnackBars.successSnackbar(context, "Mood post successful!");
 
-        context.go("/multipleChoice");
+        context.push('/myApp');
       }
     });
     return Consumer(builder: (context, ref, child) {

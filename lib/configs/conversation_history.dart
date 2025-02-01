@@ -22,7 +22,7 @@ class ConversationHistoryList {
     return ConversationHistoryList(
       conversationId: json["conversationId"] ?? '',
       name: json["name"] ?? "",
-      isGroupChat: json["isGroupChat"] ?? '',
+      isGroupChat: json["isGroupChat"] ?? false,
       lastActiveAt: DateTime.tryParse(json["lastActiveAt"] ?? ""),
       participants: json["participants"] == null
           ? []
@@ -76,7 +76,7 @@ class Participant {
   factory Participant.fromJson(Map<String, dynamic> json) {
     return Participant(
       participantId: json["participantId"] ?? "",
-      role: json["role"] ?? '',
+      role: json["role"] ?? 0,
     );
   }
 }

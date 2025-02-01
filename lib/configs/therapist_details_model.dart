@@ -15,35 +15,41 @@ class TherapistDetails {
     required this.profilePictureUrl,
     required this.firstName,
     required this.lastName,
+    required this.isEligible,
+    required this.fee,
   });
 
-  final String? id;
-  final String? userId;
-  final String? certification;
-  final String? specialization;
-  final String? bio;
-  final int? yearsOfExperience;
-  final String? userName;
-  final String? email;
-  final dynamic phoneNumber;
-  final dynamic profilePictureUrl;
-  final String? firstName;
-  final String? lastName;
+  final String id;
+  final String userId;
+  final String certification;
+  final String specialization;
+  final String bio;
+  final int yearsOfExperience;
+  final String userName;
+  final String email;
+  final String phoneNumber;
+  final String profilePictureUrl;
+  final String firstName;
+  final String lastName;
+  final bool isEligible;
+  final double fee;
 
   factory TherapistDetails.fromJson(Map<String, dynamic> json) {
     return TherapistDetails(
       id: json["id"] ?? '',
-      userId: json["userId"],
+      userId: json["userId"] ?? '',
       certification: json["certification"] ?? '',
       specialization: json["specialization"] ?? '',
       bio: json["bio"] ?? '',
-      yearsOfExperience: json["yearsOfExperience"] ?? '',
+      yearsOfExperience: json["yearsOfExperience"] ?? 0,
       userName: json["userName"] ?? '',
       email: json["email"] ?? '',
       phoneNumber: json["phoneNumber"] ?? '',
-      profilePictureUrl: json["profilePictureUrl"] ?? '',
+      profilePictureUrl: json["profilePictureUrl"],
       firstName: json["firstName"] ?? '',
       lastName: json["lastName"] ?? '',
+      isEligible: json["isEligible"] ?? false,
+      fee: json["fee"] ?? 0,
     );
   }
 }

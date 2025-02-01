@@ -29,14 +29,16 @@ class PostModel {
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return PostModel(
       id: json["id"] ?? "",
-      user: json["user"] == null ? null : User.fromJson(json["user"]),
+      user: json["user"] == null
+          ? User.fromJson({})
+          : User.fromJson(json["user"]),
       primaryMood: json["primaryMood"] ?? '',
       secondaryMood: json["secondaryMood"] ?? '',
       title: json["title"] ?? '',
       content: json["content"] ?? '',
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      likesCount: json["likesCount"] ?? '',
-      commentsCount: json["commentsCount"] ?? '',
+      likesCount: json["likesCount"] ?? 0,
+      commentsCount: json["commentsCount"] ?? 0,
       isLikedByUser: json["isLikedByUser"] ?? false,
     );
   }
@@ -51,9 +53,9 @@ class User {
   });
 
   final String? userId;
-  final dynamic userName;
-  final dynamic email;
-  final dynamic profilePictureUrl;
+  final String? userName;
+  final String? email;
+  final String? profilePictureUrl;
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(

@@ -37,7 +37,7 @@ class MoodTreads {
     return MoodTreads(
       date: DateTime.tryParse(json["date"] ?? ""),
       mood: json["mood"] ?? '',
-      moodIntensity: json["moodIntensity"] ?? '',
+      moodIntensity: json["moodIntensity"] ?? 0,
     );
   }
 }

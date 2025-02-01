@@ -1,10 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:mentalhealth/views/doctor_book/esewa_payment.dart';
-
 
 import '../../global/constants/colors_text.dart';
 import '../../global/reuseable/button.dart';
@@ -76,7 +74,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                 text: "Payment ",
                 ontap: _pay
                     ? () {
-                        Esewa.payment("Thera1", "hello", "2000", ref);
+                        Esewa.payment("Thera1", "hello", "200", ref);
                       }
                     : () {})
           ],

@@ -19,14 +19,14 @@ class ConversionUpdate {
     return ConversionUpdate(
       conversationId: json["conversationId"] ?? '',
       name: json["name"] ?? '',
-      isGroupChat: json["isGroupChat"] ?? '',
+      isGroupChat: json["isGroupChat"] ?? false,
       lastActiveAt: DateTime.tryParse(json["lastActiveAt"] ?? ""),
       participants: json["participants"] == null
           ? []
           : List<Participant>.from(
               json["participants"]!.map((x) => Participant.fromJson(x))),
       recentMessage: json["recentMessage"] == null
-          ? null
+          ? RecentMessage.fromJson({})
           : RecentMessage.fromJson(json["recentMessage"] ?? {}),
     );
   }
@@ -64,7 +64,7 @@ class RecentMessage {
     return RecentMessage(
       messageId: json["messageId"] ?? "",
       message: json["message"] ?? '',
-      isRead: json["isRead"] ?? '',
+      isRead: json["isRead"] ?? false,
     );
   }
 }

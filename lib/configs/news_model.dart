@@ -20,11 +20,11 @@ class NewsModel {
 
   factory NewsModel.fromJson(Map<String, dynamic> json) {
     return NewsModel(
-      title: json["title"],
-      description: json["description"],
-      url: json["url"],
-      urlToImage: json["urlToImage"],
-      source: json["source"],
+      title: json["title"] ?? '',
+      description: json["description"] ?? "",
+      url: json["url"] ?? "",
+      urlToImage: json["urlToImage"] ?? '',
+      source: json["source"] ?? "",
       publishedAt: DateTime.tryParse(
         json["publishedAt"] ?? "",
       ),

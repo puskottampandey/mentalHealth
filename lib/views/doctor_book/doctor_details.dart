@@ -197,7 +197,7 @@ class DoctorDetailsData extends StatelessWidget {
                     height: 10.h,
                   ),
                   Text(
-                    '${data.specialization}',
+                    data.specialization,
                     style: textPoppions.headlineMedium?.copyWith(
                       color: AppColors.iconColor,
                       fontSize: 14.sp,
@@ -205,7 +205,7 @@ class DoctorDetailsData extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${data.bio}',
+                    data.bio,
                     style: textPoppions.headlineMedium?.copyWith(
                       color: AppColors.iconColor,
                       fontSize: 14.sp,
