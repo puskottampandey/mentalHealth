@@ -22,9 +22,9 @@ class PostModel {
   final String? title;
   final String? content;
   final DateTime? createdAt;
-  final int? likesCount;
+  int likesCount;
   final int? commentsCount;
-  final bool? isLikedByUser;
+  bool isLikedByUser;
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return PostModel(

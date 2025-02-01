@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mentalhealth/controllers/mood_controller.dart';
-import 'package:mentalhealth/controllers/theraplist.dart';
+import 'package:mentalhealth/controllers/phq9_post.dart';
 import 'package:mentalhealth/controllers/user_data.dart';
+import 'package:mentalhealth/global/reuseable/scaffold.dart';
 
 import '../../global/constants/colors_text.dart';
 import '../../global/reuseable/button.dart';
@@ -38,7 +38,7 @@ class Recommendation {
 }
 
 class _PHQ9ScreenState extends ConsumerState<PHQ9Screen> {
-  final List<int> _responses = List.filled(9, 0);
+  final List<int> _responses = List.filled(9, -1);
   bool isLoading = false;
   final List<String> questions = [
     "Little interest or pleasure in doing things",
@@ -106,22 +106,15 @@ class _PHQ9ScreenState extends ConsumerState<PHQ9Screen> {
     );
   }
 
+  List<Map<String, dynamic>> phq9Request = [];
   @override
   Widget build(BuildContext context) {
+    final id = ref.watch(userId);
     return Consumer(builder: (context, ref, child) {
-      return Scaffold(
-        backgroundColor: AppColors.whiteColor,
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text(
-            "PHQ-9 Questionnaire",
-            style: textPoppions.headlineMedium?.copyWith(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        body: Stack(children: [
+      return ReuseableScaffold(
+        appbar: true,
+        text: "PHQ9 Q",
+        child: Stack(children: [
           Padding(
             padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
             child: SingleChildScrollView(
@@ -177,6 +170,11 @@ class _PHQ9ScreenState extends ConsumerState<PHQ9Screen> {
                                       value: option,
                                       groupValue: _responses[index],
                                       onChanged: (value) {
+                                        phq9Request.add({
+                                          "questionNumber": index + 1,
+                                          "response": value,
+                                        });
+
                                         setState(() {
                                           _responses[index] = value!;
                                         });
@@ -208,94 +206,92 @@ class _PHQ9ScreenState extends ConsumerState<PHQ9Screen> {
                     height: 10.h,
                   ),
                   ReuseableButton(
-                    bgcolor: AppColors.primaryColor,
-                    text: "Sign In",
-                    textcolor: kvverylightColor,
-                    ontap: () async {
-                      setState(() {
-                        isLoading = true; // Start loading
-                      });
+                      bgcolor: AppColors.primaryColor,
+                      text: "Sign In",
+                      textcolor: kvverylightColor,
+                      ontap: () async {
+                        if (_responses.contains(-1)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Please answer all the questions before proceeding.",
+                                style: textPoppions.headlineMedium?.copyWith(
+                                  color: AppColors.whiteColor,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              backgroundColor: Colors.red,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                          return;
+                        } else {
+                          await ref
+                              .read(phq9ControllerProvider.notifier)
+                              .postPhq9(id: id, map: phq9Request);
+                          setState(() {
+                            isLoading = true; // Start loading
+                          });
 
-                      // Simulate a delay to mimic the fetching process (e.g., API call)
-                      // ignore: prefer_const_constructors
-                      await Future.delayed(Duration(seconds: 5));
+                          await Future.delayed(const Duration(seconds: 5));
 
-                      // Simulate fetching the recommendation
-                      Recommendation recommendation = classifyUser();
+                          Recommendation recommendation = classifyUser();
 
-                      setState(() {
-                        isLoading =
-                            false; // Stop loading once the data is fetched
-                      });
-                      // Show dialog with the recommendation result
-                      showDialog(
-                          // ignore: use_build_context_synchronously
-                          context: context,
-                          builder: (_) {
-                            final id = ref.watch(userId);
-                            return AlertDialog(
-                              title: Text(recommendation.title),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Center(
-                                    child: Text(
-                                      "Description: ${recommendation.description}\n",
-                                      style:
-                                          textPoppions.headlineMedium?.copyWith(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w600,
+                          setState(() {
+                            isLoading = false;
+                          });
+
+                          showDialog(
+                              // ignore: use_build_context_synchronously
+                              context: context,
+                              builder: (_) {
+                                return AlertDialog(
+                                  title: Text(recommendation.title),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Center(
+                                        child: Text(
+                                          "Description: ${recommendation.description}\n",
+                                          style: textPoppions.headlineMedium
+                                              ?.copyWith(
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        "Action: ${recommendation.action}",
+                                        style: textPoppions.headlineMedium
+                                            ?.copyWith(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        context.push("/myApp");
+                                      },
+                                      child: Text(
+                                        "Ok",
+                                        style: textPoppions.headlineMedium
+                                            ?.copyWith(
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Text(
-                                    "Action: ${recommendation.action}",
-                                    style:
-                                        textPoppions.headlineMedium?.copyWith(
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    ref
-                                        .read(therapistListControllerProvider
-                                            .notifier)
-                                        .therapistList();
-
-                                    ref
-                                        .read(moodControllerProvider.notifier)
-                                        .getSleep(id);
-
-                                    ref
-                                        .read(moodTrendsControllerProvider
-                                            .notifier)
-                                        .getmood(id);
-                                    ref
-                                        .read(
-                                            exerciseControllerProvider.notifier)
-                                        .getExercise(id);
-
-                                    context.push("/myApp");
-                                  },
-                                  child: Text(
-                                    "Ok",
-                                    style:
-                                        textPoppions.headlineMedium?.copyWith(
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          });
-                    },
-                  ),
+                                  ],
+                                );
+                              });
+                        }
+                      })
                 ],
               ),
             ),

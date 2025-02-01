@@ -1,15 +1,10 @@
-import 'package:esewa_flutter_sdk/esewa_config.dart';
-import 'package:esewa_flutter_sdk/esewa_flutter_sdk.dart';
-import 'package:esewa_flutter_sdk/esewa_payment.dart';
-import 'package:esewa_flutter_sdk/esewa_payment_success_result.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
-import 'package:mentalhealth/controllers/payment_transactions.dart';
-import 'package:mentalhealth/controllers/user_data.dart';
+
 import 'package:mentalhealth/views/doctor_book/esewa_payment.dart';
-import 'package:mentalhealth/views/home/home/therapist_data.dart';
+
 
 import '../../global/constants/colors_text.dart';
 import '../../global/reuseable/button.dart';

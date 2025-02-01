@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mentalhealth/configs/auth_response_model.dart';
 import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:mentalhealth/global/constants/api_endpoints.dart';
 import 'package:mentalhealth/global/repository/api_repository.dart';
 import 'package:mentalhealth/global/services/token_service.dart';
@@ -29,7 +30,7 @@ class AuthController extends StateNotifier<StateModel> {
           );
       TokenService().saveToken(res.data['token'], true);
       // TokenService().saveExpiry(authResponse.expiry, true);
-
+   await ref.read(userDataControllerProvider.notifier).userData();
       if (mounted) {
         state = state.copyWith(
             data: res.data["Details"],

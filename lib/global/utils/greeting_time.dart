@@ -9,6 +9,6 @@ class GreetingUtils {
       return "Good AfterNoon";
     } else
       // ignore: curly_braces_in_flow_control_structures
-      return "Good Night";
+      return "Good AfterNoon";
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/controllers/get_post_controller.dart';
 import 'package:mentalhealth/controllers/post_controller.dart';
 import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:mentalhealth/global/constants/colors_text.dart';
@@ -80,6 +81,7 @@ class _CreatePostState extends ConsumerState<CreatePost> {
         SnackBars.errorsnackbar(context, "Something went wrong");
       }
       if (next.requestStatus == RequestStatus.success) {
+        ref.read(postListControllerProvider.notifier).getPostList();
         SnackBars.successSnackbar(context, "Post successful!");
         context.pop();
       }

@@ -22,4 +22,6 @@ class APIEndpoints {
   static const String unlikeposts = "/posts/unlike-post";
   static const String commentposts = "/posts/comment-post";
   static const String mood = "/Mood";
+  static const String news = "/News";
+  static const String phq9 = "/Phq9Questionnaires";
 }

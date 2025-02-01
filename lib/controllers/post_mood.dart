@@ -29,15 +29,15 @@ class MoodPostController extends StateNotifier<StateModel> {
       final res = await GetIt.I.get<ApiRepository>().apiRequest(
             endpoint: APIEndpoints.mood,
             data: {
-              "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-              "mood": 0,
-              "notes": "string",
-              "moodIntensity": 10,
-              "sleepHours": 24,
-              "exerciseMinutes": 1440,
-              "weather": 0,
-              "stressLevel": 10,
-              "socialInteraction": true
+              "userId": id,
+              "mood": mood,
+              "notes": notes,
+              "moodIntensity": moodIntensity,
+              "sleepHours": sleepHours,
+              "exerciseMinutes": exercise,
+              "weather": weather,
+              "stressLevel": stresslevel,
+              "socialInteraction": socialInteraction
             },
             request: "post",
           );

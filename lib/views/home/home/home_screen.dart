@@ -1,17 +1,21 @@
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
+import 'dart:math';
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mentalhealth/configs/mood_model.dart';
+import 'package:mentalhealth/configs/news_model.dart';
 import 'package:mentalhealth/configs/state_model.dart';
+import 'package:mentalhealth/configs/user_model.dart';
 import 'package:mentalhealth/controllers/mood_controller.dart';
+import 'package:mentalhealth/controllers/news_controller.dart';
 import 'package:mentalhealth/controllers/theraplist.dart';
+import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:mentalhealth/global/reuseable/buider_class.dart';
-import 'package:mentalhealth/global/reuseable/formfield.dart';
+
 import 'package:mentalhealth/views/home/home/therapist_data.dart';
 
 import 'package:url_launcher/url_launcher.dart';
@@ -23,9 +27,8 @@ final indexTap = StateProvider((ref) => 0);
 class HomeScreen extends ConsumerWidget {
   HomeScreen({super.key});
   final List<String> _list = [
-    "Doctor",
-    "Appointment",
-    "Medicine",
+    "Mood Test",
+    "PHQ9 Test",
   ];
   final List<String> list = [
     "Sleep History",
@@ -68,6 +71,9 @@ class HomeScreen extends ConsumerWidget {
     final chartmood = ref.watch(moodTrendsControllerProvider);
     final min = ref.watch(exerciseControllerProvider);
     final tapIndex = ref.watch(indexTap);
+    final newsData = ref.watch(newsListControllerProvider);
+    final roles = ref.watch(userDataControllerProvider);
+    final UserData? data = roles.data;
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       body: Padding(
@@ -127,13 +133,18 @@ class HomeScreen extends ConsumerWidget {
                   ? Builder(builder: (context) {
                       switch (chart.requestStatus) {
                         case RequestStatus.initial:
-                          return Center(child: Container());
+                          return const Center(
+                              child: CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                          ));
                         case RequestStatus.progress:
-                          return Center(child: Container());
+                          return const Center(
+                              child: CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                          ));
                         case RequestStatus.success:
                           return ChartLine(data: chart.data);
                         case RequestStatus.failure:
-                          print(chart.message.toString);
                           return Center(
                             child: Text(
                               "Something went wrong",
@@ -152,9 +163,15 @@ class HomeScreen extends ConsumerWidget {
                   ? Builder(builder: (context) {
                       switch (chartmood.requestStatus) {
                         case RequestStatus.initial:
-                          return Center(child: Container());
+                          return const Center(
+                              child: CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                          ));
                         case RequestStatus.progress:
-                          return Center(child: Container());
+                          return const Center(
+                              child: CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                          ));
                         case RequestStatus.success:
                           return MoodChartLine(data: chartmood.data);
                         case RequestStatus.failure:
@@ -176,9 +193,15 @@ class HomeScreen extends ConsumerWidget {
                   ? Builder(builder: (context) {
                       switch (min.requestStatus) {
                         case RequestStatus.initial:
-                          return Center(child: Container());
+                          return const Center(
+                              child: CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                          ));
                         case RequestStatus.progress:
-                          return Center(child: Container());
+                          return const Center(
+                              child: CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                          ));
                         case RequestStatus.success:
                           return ExerciseChartLine(data: min.data);
                         case RequestStatus.failure:
@@ -199,33 +222,48 @@ class HomeScreen extends ConsumerWidget {
               SizedBox(
                 height: 10.h,
               ),
-              Text(
-                "Specialist",
-                style: textPoppions.headlineMedium
-                    ?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w600),
-              ),
-              Builder(builder: (context) {
-                switch (details.requestStatus) {
-                  case RequestStatus.initial:
-                    return Center(child: Container());
-                  case RequestStatus.progress:
-                    return Center(child: Container());
-                  case RequestStatus.success:
-                    return TherapistData(data: details.data);
-                  case RequestStatus.failure:
-                    return Center(
-                      child: Text(
-                        "Something went wrong",
-                        style: textPoppions.titleMedium?.copyWith(
-                            fontSize: 12.sp,
-                            color: AppColors.blackColor,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    );
-                  case RequestStatus.fetchingMore:
-                    return Container();
-                }
-              }),
+
+              data!.roles.isEmpty || data.roles.contains("User")
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Specialist",
+                          style: textPoppions.headlineMedium?.copyWith(
+                              fontSize: 16.sp, fontWeight: FontWeight.w600),
+                        ),
+                        Builder(builder: (context) {
+                          switch (details.requestStatus) {
+                            case RequestStatus.initial:
+                              return const Center(
+                                  child: CircularProgressIndicator(
+                                color: AppColors.primaryColor,
+                              ));
+                            case RequestStatus.progress:
+                              return const Center(
+                                  child: CircularProgressIndicator(
+                                color: AppColors.primaryColor,
+                              ));
+                            case RequestStatus.success:
+                              return TherapistData(data: details.data);
+                            case RequestStatus.failure:
+                              return Center(
+                                child: Text(
+                                  "Something went wrong",
+                                  style: textPoppions.titleMedium?.copyWith(
+                                      fontSize: 12.sp,
+                                      color: AppColors.blackColor,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              );
+                            case RequestStatus.fetchingMore:
+                              return Container();
+                          }
+                        }),
+                      ],
+                    )
+                  : Container(),
+              // : Container(),
               Text(
                 "Services",
                 style: textPoppions.headlineMedium
@@ -238,149 +276,47 @@ class HomeScreen extends ConsumerWidget {
                   itemCount: _list.length,
                   itemBuilder: (BuildContext context, int index) {
                     final item = _list[index];
-                    return Column(
-                      children: [
-                        Container(
-                          width: 100.w,
-                          margin: EdgeInsets.symmetric(
-                              horizontal: 8.w, vertical: 8.h),
-                          decoration: BoxDecoration(
-                            color: AppColors.pureWhiteColor,
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              children: [
-                                const Icon(
-                                  Icons.calendar_month,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 8.h, horizontal: 8.w),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        item,
-                                        style: textPoppions.headlineMedium
-                                            ?.copyWith(
-                                          fontSize: 10.sp,
-                                          color: AppColors.iconColor,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-              Text(
-                "Available Doctors",
-                style: textPoppions.headlineMedium?.copyWith(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(
-                height: 200.h,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 6,
-                  itemBuilder: (BuildContext context, int index) {
                     return GestureDetector(
                       onTap: () {
-                        context.push('/chat', extra: "Puskottam Pandey");
+                        if (index == 0) {
+                          context.push("/postMood");
+                        }
+                        if (index == 1) {
+                          context.push("/multipleChoice");
+                        }
                       },
                       child: Container(
+                        width: 150.w,
                         margin: EdgeInsets.symmetric(
                             horizontal: 8.w, vertical: 8.h),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
+                          color: AppColors.pureWhiteColor,
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10.h, horizontal: 10.w),
-                          child: Row(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Looking For your\nMental Health",
-                                    style:
-                                        textPoppions.headlineMedium?.copyWith(
-                                      color: AppColors.whiteColor,
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Specialist Doctor ",
-                                    style:
-                                        textPoppions.headlineMedium?.copyWith(
-                                      color: AppColors.whiteColor,
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 10.h,
-                                  ),
-                                  Text(
-                                    "Dr.Pandey",
-                                    style:
-                                        textPoppions.headlineMedium?.copyWith(
-                                      color: AppColors.whiteColor,
-                                      fontSize: 10.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "May 25 -May 27",
-                                    style:
-                                        textPoppions.headlineMedium?.copyWith(
-                                      color: AppColors.whiteColor,
-                                      fontSize: 10.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 20.h,
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 6.h, horizontal: 6.w),
-                                    decoration: BoxDecoration(
-                                        color: const Color.fromARGB(
-                                            255, 9, 133, 233),
-                                        borderRadius:
-                                            BorderRadius.circular(8.r)),
-                                    child: Text(
-                                      "Chat now",
+                              const Icon(
+                                Icons.calendar_month,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 8.h, horizontal: 8.w),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      item,
                                       style:
                                           textPoppions.headlineMedium?.copyWith(
-                                        color: AppColors.whiteColor,
                                         fontSize: 10.sp,
+                                        color: AppColors.iconColor,
                                         fontWeight: FontWeight.w600,
                                       ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                  )
-                                ],
-                              ),
-                              Image.asset(
-                                "assets/images/docotors.png",
-                                height: 200.h,
-                                width: 100.w,
-                                fit: BoxFit.contain,
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -390,61 +326,46 @@ class HomeScreen extends ConsumerWidget {
                   },
                 ),
               ),
-              Text(
-                "News and Articles",
-                style: textPoppions.headlineMedium?.copyWith(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                ),
+              SizedBox(
+                height: 6.h,
               ),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _listHealth.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final iteam = _listHealth[index];
-                  return GestureDetector(
-                    onTap: () async {
-                      final Uri url = Uri.parse(iteam["url"]);
-                      if (!await launchUrl(url)) {
-                        throw Exception('Could not launch $url');
-                      }
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "News and Articles",
+                    style: textPoppions.headlineMedium?.copyWith(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      context.push("/newsDetails");
                     },
-                    child: Card(
-                      color: AppColors.pureWhiteColor,
-                      elevation: 0,
-                      child: ListTile(
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.r),
-                          child: Image.asset(
-                            iteam["image"],
-                            height: 80.h,
-                            width: 80.w,
-                            fit: BoxFit.fill,
-                          ),
-                        ),
-                        title: Text(
-                          iteam["title"].toString(),
-                          maxLines: 2,
-                          style: textPoppions.headlineMedium?.copyWith(
-                            color: AppColors.blackColor,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        subtitle: Text(
-                          iteam["subtitle"].toString(),
-                          maxLines: 3,
-                          style: textPoppions.headlineMedium?.copyWith(
-                            color: AppColors.iconColor,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                    child: Text(
+                      "View All",
+                      style: textPoppions.headlineMedium?.copyWith(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  );
-                },
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 6.h,
+              ),
+              RequestStateWidget<List<NewsModel>>(
+                status: newsData.requestStatus,
+                data: newsData.data,
+                onSuccess: (data) => NewsDetails(data: data),
+                errorMessage: "Something went wrong",
+                errorStyle: textPoppions.titleMedium?.copyWith(
+                  fontSize: 12.sp,
+                  color: AppColors.blackColor,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -463,7 +384,7 @@ class ChartLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
         height: 200.h,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -553,14 +474,14 @@ class MoodChartLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
         height: 200.h,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: LineChart(LineChartData(
             minX: 0,
             maxX: data.length.toDouble() - 1,
-            minY: 5,
+            minY: 0,
             maxY: 20,
             borderData: FlBorderData(
               show: true,
@@ -645,7 +566,7 @@ class ExerciseChartLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
         height: 200.h,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -727,209 +648,172 @@ class ExerciseChartLine extends StatelessWidget {
         ));
   }
 }
-// import 'package:fl_chart/fl_chart.dart';
 
-// class HomeScreen extends StatefulWidget {
-//   const HomeScreen({super.key});
+class NewsDetails extends StatelessWidget {
+  final List<NewsModel> data;
+  const NewsDetails({
+    super.key,
+    required this.data,
+  });
 
-//   @override
-//   // ignore: library_private_types_in_public_api
-//   _HomeScreenState createState() => _HomeScreenState();
-// }
-
-// class _HomeScreenState extends State<HomeScreen> {
-//   final List<Map<String, dynamic>> _dataset = [];
-//   final _formKey = GlobalKey<FormState>();
-//   String _selectedMetric = 'mood';
-//   // Controllers for input fields
-//   final _dateController = TextEditingController();
-//   final _moodController = TextEditingController();
-//   final _sleepController = TextEditingController();
-//   final _stressController = TextEditingController();
-//   final _activityController = TextEditingController();
-//   final _meditationController = TextEditingController();
-
-//   void _addDataPoint() {
-//     if (_formKey.currentState!.validate()) {
-//       setState(() {
-//         _dataset.add({
-//           'date': _dateController.text,
-//           'mood': double.parse(_moodController.text),
-//           'sleep': double.parse(_sleepController.text),
-//           'stress': double.parse(_stressController.text),
-//           'activity': double.parse(_activityController.text),
-//           'meditation': double.parse(_meditationController.text),
-//         });
-//       });
-
-//       // Clear the input fields
-//       _dateController.clear();
-//       _moodController.clear();
-//       _sleepController.clear();
-//       _stressController.clear();
-//       _activityController.clear();
-//       _meditationController.clear();
-//     }
-//   }
-
-//   List<FlSpot> _getSpots(String key) {
-//     return _dataset
-//         .asMap()
-//         .entries
-//         .map((entry) => FlSpot(entry.key.toDouble(), entry.value[key]))
-//         .toList();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SingleChildScrollView(
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Form(
-//             key: _formKey,
-//             child: Padding(
-//               padding: const EdgeInsets.all(16.0),
-//               child: Column(
-//                 children: [
-//                   TextFormField(
-//                     controller: _dateController,
-//                     decoration:
-//                         InputDecoration(labelText: 'Date (e.g., Jan 10)'),
-//                     validator: (value) =>
-//                         value!.isEmpty ? 'Enter a date' : null,
-//                   ),
-//                   TextFormField(
-//                     controller: _moodController,
-//                     decoration: InputDecoration(labelText: 'Mood (1-10)'),
-//                     keyboardType: TextInputType.number,
-//                     validator: (value) =>
-//                         value!.isEmpty ? 'Enter a mood score' : null,
-//                   ),
-//                   TextFormField(
-//                     controller: _sleepController,
-//                     decoration: InputDecoration(labelText: 'Sleep (hrs)'),
-//                     keyboardType: TextInputType.number,
-//                     validator: (value) =>
-//                         value!.isEmpty ? 'Enter sleep hours' : null,
-//                   ),
-//                   TextFormField(
-//                     controller: _stressController,
-//                     decoration: InputDecoration(labelText: 'Stress (1-10)'),
-//                     keyboardType: TextInputType.number,
-//                     validator: (value) =>
-//                         value!.isEmpty ? 'Enter a stress score' : null,
-//                   ),
-//                   TextFormField(
-//                     controller: _activityController,
-//                     decoration: InputDecoration(labelText: 'Activity (mins)'),
-//                     keyboardType: TextInputType.number,
-//                     validator: (value) =>
-//                         value!.isEmpty ? 'Enter activity minutes' : null,
-//                   ),
-//                   TextFormField(
-//                     controller: _meditationController,
-//                     decoration: InputDecoration(labelText: 'Meditation (mins)'),
-//                     keyboardType: TextInputType.number,
-//                     validator: (value) =>
-//                         value!.isEmpty ? 'Enter meditation minutes' : null,
-//                   ),
-//                   SizedBox(height: 16),
-//                   ElevatedButton(
-//                     onPressed: _addDataPoint,
-//                     child: Text('Add Data Point'),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//           if (_dataset.isNotEmpty)
-//             Column(
-//               children: [
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                   children: [
-//                     _buildMetricButton('Mood', 'mood'),
-//                     _buildMetricButton('Sleep', 'sleep'),
-//                     _buildMetricButton('Stress', 'stress'),
-//                     _buildMetricButton('Activity', 'activity'),
-//                     _buildMetricButton('Meditation', 'meditation'),
-//                   ],
-//                 ),
-//                 Container(
-//                   height: 300,
-//                   padding: const EdgeInsets.all(16.0),
-//                   child: LineChart(
-//                     LineChartData(
-//                       gridData: const FlGridData(show: true),
-//                       borderData: FlBorderData(show: true),
-//                       titlesData: const FlTitlesData(
-//                         leftTitles: AxisTitles(
-//                           sideTitles: SideTitles(showTitles: true),
-//                         ),
-//                         bottomTitles: AxisTitles(
-//                           sideTitles: SideTitles(showTitles: true),
-//                         ),
-//                       ),
-//                       lineBarsData: [
-//                         LineChartBarData(
-//                           spots: _getSpots(_selectedMetric),
-//                           isCurved: true,
-//                           barWidth: 2,
-//                           color: ,
-//                           belowBarData: BarAreaData(show: false),
-//                         ),
-//                         LineChartBarData(
-//                           spots: _getSpots(_selectedMetric),
-//                           isCurved: true,
-//                           barWidth: 2,
-//                           color: Colors.green,
-//                           belowBarData: BarAreaData(show: false),
-//                         ),
-//                         LineChartBarData(
-//                           spots: _getSpots(_selectedMetric),
-//                           isCurved: true,
-//                           barWidth: 2,
-//                           color: Colors.red,
-//                           belowBarData: BarAreaData(show: false),
-//                         ),
-//                         LineChartBarData(
-//                           spots: _getSpots(_selectedMetric),
-//                           isCurved: true,
-//                           barWidth: 2,
-//                           color: Colors.orange,
-//                           belowBarData: BarAreaData(show: false),
-//                         ),
-//                         LineChartBarData(
-//                           spots: _getSpots(_selectedMetric),
-//                           isCurved: true,
-//                           barWidth: 2,
-//                           color: Colors.purple,
-//                           belowBarData: BarAreaData(show: false),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildMetricButton(String label, String metricKey) {
-//     return ElevatedButton(
-//       onPressed: () {
-//         setState(() {
-//           _selectedMetric = metricKey;
-//         });
-//       },
-//       style: ElevatedButton.styleFrom(
-//         backgroundColor:
-//             _selectedMetric == metricKey ? Colors.blue : Colors.grey,
-//       ),
-//       child: Text(label),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: min(5, data.length),
+      itemBuilder: (BuildContext context, int index) {
+        final item = data[index];
+        return GestureDetector(
+          onTap: () async {
+            final Uri url = Uri.parse(item.url.toString());
+            if (!await launchUrl(url)) {
+              throw Exception('Could not launch $url');
+            }
+          },
+          child: Card(
+            color: AppColors.pureWhiteColor,
+            elevation: 0,
+            child: ListTile(
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(8.r),
+                child: Image.network(
+                  item.urlToImage.toString(),
+                  height: 100.h,
+                  width: 80.w,
+                  fit: BoxFit.fill,
+                ),
+              ),
+              title: Text(
+                item.title.toString(),
+                maxLines: 2,
+                style: textPoppions.headlineMedium?.copyWith(
+                  color: AppColors.blackColor,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                item.description.toString(),
+                maxLines: 3,
+                style: textPoppions.headlineMedium?.copyWith(
+                  color: AppColors.iconColor,
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+// Text(
+              //   "Available Doctors",
+              //   style: textPoppions.headlineMedium?.copyWith(
+              //     fontSize: 16.sp,
+              //     fontWeight: FontWeight.w600,
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: 200.h,
+              //   child: ListView.builder(
+              //     scrollDirection: Axis.horizontal,
+              //     itemCount: 6,
+              //     itemBuilder: (BuildContext context, int index) {
+              //       return GestureDetector(
+              //         onTap: () {
+              //           context.push('/chat', extra: "Puskottam Pandey");
+              //         },
+              //         child: Container(
+              //           margin: EdgeInsets.symmetric(
+              //               horizontal: 8.w, vertical: 8.h),
+              //           decoration: BoxDecoration(
+              //             color: AppColors.primaryColor,
+              //             borderRadius: BorderRadius.circular(8.r),
+              //           ),
+              //           child: Padding(
+              //             padding: EdgeInsets.symmetric(
+              //                 vertical: 10.h, horizontal: 10.w),
+              //             child: Row(
+              //               children: [
+              //                 Column(
+              //                   crossAxisAlignment: CrossAxisAlignment.start,
+              //                   children: [
+              //                     Text(
+              //                       "Looking For your\nMental Health",
+              //                       style:
+              //                           textPoppions.headlineMedium?.copyWith(
+              //                         color: AppColors.whiteColor,
+              //                         fontSize: 12.sp,
+              //                         fontWeight: FontWeight.w600,
+              //                       ),
+              //                     ),
+              //                     Text(
+              //                       "Specialist Doctor ",
+              //                       style:
+              //                           textPoppions.headlineMedium?.copyWith(
+              //                         color: AppColors.whiteColor,
+              //                         fontSize: 12.sp,
+              //                         fontWeight: FontWeight.w600,
+              //                       ),
+              //                     ),
+              //                     SizedBox(
+              //                       height: 10.h,
+              //                     ),
+              //                     Text(
+              //                       "Dr.Pandey",
+              //                       style:
+              //                           textPoppions.headlineMedium?.copyWith(
+              //                         color: AppColors.whiteColor,
+              //                         fontSize: 10.sp,
+              //                         fontWeight: FontWeight.w600,
+              //                       ),
+              //                     ),
+              //                     Text(
+              //                       "May 25 -May 27",
+              //                       style:
+              //                           textPoppions.headlineMedium?.copyWith(
+              //                         color: AppColors.whiteColor,
+              //                         fontSize: 10.sp,
+              //                         fontWeight: FontWeight.w600,
+              //                       ),
+              //                     ),
+              //                     SizedBox(
+              //                       height: 20.h,
+              //                     ),
+              //                     Container(
+              //                       padding: EdgeInsets.symmetric(
+              //                           vertical: 6.h, horizontal: 6.w),
+              //                       decoration: BoxDecoration(
+              //                           color: const Color.fromARGB(
+              //                               255, 9, 133, 233),
+              //                           borderRadius:
+              //                               BorderRadius.circular(8.r)),
+              //                       child: Text(
+              //                         "Chat now",
+              //                         style:
+              //                             textPoppions.headlineMedium?.copyWith(
+              //                           color: AppColors.whiteColor,
+              //                           fontSize: 10.sp,
+              //                           fontWeight: FontWeight.w600,
+              //                         ),
+              //                       ),
+              //                     )
+              //                   ],
+              //                 ),
+              //                 Image.asset(
+              //                   "assets/images/docotors.png",
+              //                   height: 200.h,
+              //                   width: 100.w,
+              //                   fit: BoxFit.contain,
+              //                 ),
+              //               ],
+              //             ),
+              //           ),
+              //         ),
+              //       );
+              //     },
+              //   ),
+              // ),

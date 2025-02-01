@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,12 +30,12 @@ class SignInScreen extends ConsumerWidget {
 
     ref.listen<StateModel>(authControllerProvider, (previous, next) async {
       if (next.requestStatus == RequestStatus.failure) {
-        SnackBars.errorsnackbar(context, "Something went wrong");
+        SnackBars.errorsnackbar(context, "Password or username is invalid");
       }
       if (next.requestStatus == RequestStatus.success) {
         SnackBars.successSnackbar(context, "Login successful!");
-        ref.read(userDataControllerProvider.notifier).userData();
-        context.go("/moodPost");
+
+        context.go("/myApp");
       }
     });
     return Consumer(builder: (context, ref, child) {

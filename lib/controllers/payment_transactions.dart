@@ -5,6 +5,7 @@ import 'package:mentalhealth/configs/auth_response_model.dart';
 import 'package:mentalhealth/configs/state_model.dart';
 import 'package:mentalhealth/controllers/payment_verify.dart';
 import 'package:mentalhealth/controllers/signup_controller.dart';
+import 'package:mentalhealth/controllers/theraplist.dart';
 import 'package:mentalhealth/global/constants/api_endpoints.dart';
 import 'package:mentalhealth/global/repository/api_repository.dart';
 import 'package:mentalhealth/global/services/token_service.dart';
@@ -40,9 +41,10 @@ class PaymentTransactionsController extends StateNotifier<StateModel> {
             },
             request: "post",
           );
-      ref
+      await ref
           .read(paymentVerifyControllerProvider.notifier)
           .paymentVerify(referenceId);
+      await ref.read(therapistListControllerProvider.notifier).therapistList();
       if (mounted) {
         state = state.copyWith(
             data: res.data["Details"],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/global/routes/route_constants.dart';
 import 'package:mentalhealth/views/doctor_book/mood_post_screen.dart';
+import 'package:mentalhealth/views/home/home/home_screen.dart';
 import 'package:mentalhealth/views/oboarding/multiple_choice.dart';
 import '../../views/authentication/forgot_password/forgot_password.dart';
 import '../../views/authentication/forgot_password/reset_password_screen.dart';
@@ -12,6 +13,7 @@ import '../../views/doctor_book/doctor_details.dart';
 import '../../views/doctor_book/payment_screen.dart';
 import '../../views/home/chat/chat_screen.dart';
 import '../../views/home/main_home/main_home_screen.dart';
+import '../../views/home/news/news_details.dart';
 import '../../views/oboarding/onboarding_screen.dart';
 import '../../views/search/search_screen.dart';
 import '../../views/splash/splash_screen.dart';
@@ -102,9 +104,15 @@ final GoRouter router = GoRouter(
         }),
     GoRoute(
         name: RouteConstants.postMood,
-        path: '/postMood,',
+        path: '/postMood',
         builder: (context, state) {
           return const MoodPost();
+        }),
+    GoRoute(
+        name: RouteConstants.newsDetails,
+        path: '/newsDetails',
+        builder: (context, state) {
+          return const NewsArticles();
         }),
   ],
 );

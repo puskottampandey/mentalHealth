@@ -3,14 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/configs/chat_list_model.dart';
+import 'package:mentalhealth/configs/coversation_user_list.dart';
 import 'package:mentalhealth/configs/state_model.dart';
 import 'package:mentalhealth/controllers/get_conversation.dart';
-import 'package:mentalhealth/controllers/get_reports.dart';
-import 'package:mentalhealth/controllers/therapist_user.dart';
+import 'package:mentalhealth/controllers/get_conversations.dart';
 import 'package:mentalhealth/global/constants/colors_text.dart';
-import 'package:mentalhealth/global/reuseable/formfield.dart';
 import 'package:mentalhealth/views/home/chat/chat_screen.dart';
-
+import 'package:timeago/timeago.dart' as timeago;
 import '../../../controllers/user_data.dart';
 
 class ChatScreen extends ConsumerWidget {
@@ -18,7 +17,7 @@ class ChatScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final details = ref.watch(therapistUserControllerProvider);
+    final details = ref.watch(conversionListControllerProvider);
     final id = ref.watch(userId);
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
@@ -28,29 +27,12 @@ class ChatScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Chats",
-                    style: textPoppions.titleMedium?.copyWith(
-                        fontSize: 20.sp,
-                        color: AppColors.blackColor,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      ref.read(reportControllerProvider.notifier).getReport(id);
-                    },
-                    child: Text(
-                      "Reports",
-                      style: textPoppions.titleMedium?.copyWith(
-                          fontSize: 16.sp,
-                          color: AppColors.blackColor,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
+              Text(
+                "Chats",
+                style: textPoppions.titleMedium?.copyWith(
+                    fontSize: 20.sp,
+                    color: AppColors.blackColor,
+                    fontWeight: FontWeight.bold),
               ),
               SizedBox(
                 height: 12.h,
@@ -81,9 +63,15 @@ class ChatScreen extends ConsumerWidget {
               Builder(builder: (context) {
                 switch (details.requestStatus) {
                   case RequestStatus.initial:
-                    return Center(child: Container());
+                    return const Center(
+                        child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
+                    ));
                   case RequestStatus.progress:
-                    return Center(child: Container());
+                    return const Center(
+                        child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
+                    ));
                   case RequestStatus.success:
                     return ChatUserData(data: details.data);
                   case RequestStatus.failure:
@@ -109,7 +97,7 @@ class ChatScreen extends ConsumerWidget {
 }
 
 class ChatUserData extends ConsumerWidget {
-  final List<ChatList> data;
+  final List<ConversionUpdate> data;
   const ChatUserData({
     super.key,
     required this.data,
@@ -123,6 +111,7 @@ class ChatUserData extends ConsumerWidget {
       itemCount: data.length,
       itemBuilder: (BuildContext context, int index) {
         final item = data[index];
+        bool? check = item.recentMessage!.isRead;
         return Column(
           children: [
             GestureDetector(
@@ -132,26 +121,45 @@ class ChatUserData extends ConsumerWidget {
                     .getConversations(item.conversationId);
                 context.push("/chat",
                     extra: ConversationData(
-                        conversationId: item.conversationId,
-                        name: "${item.firstName}${item.lastName}"));
+                        conversationId: item.conversationId.toString(),
+                        name: "${item.name}"));
               },
               child: ListTile(
                 minVerticalPadding: 0,
                 contentPadding: EdgeInsets.zero,
                 visualDensity: VisualDensity.compact,
                 title: Text(
-                  "${item.firstName} ",
+                  "${item.name} ",
                   style: textPoppions.titleMedium?.copyWith(
                       fontSize: 16.sp,
                       color: AppColors.blackColor,
-                      fontWeight: FontWeight.bold),
+                      fontWeight: check! ? FontWeight.w400 : FontWeight.bold),
                 ),
-                subtitle: Text(
-                  item.specialization.toString(),
-                  style: textPoppions.titleMedium?.copyWith(
-                      fontSize: 14.sp,
-                      color: AppColors.iconColor,
-                      fontWeight: FontWeight.bold),
+                subtitle: Row(
+                  children: [
+                    Text(
+                      "${item.recentMessage!.message.toString()}.  ",
+                      style: textPoppions.titleMedium?.copyWith(
+                          fontSize: 14.sp,
+                          color: check!
+                              ? AppColors.iconColor
+                              : AppColors.blackColor,
+                          fontWeight:
+                              check ? FontWeight.w400 : FontWeight.bold),
+                    ),
+                    Text(
+                      timeago.format(
+                          DateTime.parse(item.lastActiveAt.toString())
+                              .toLocal()),
+                      style: textPoppions.titleMedium?.copyWith(
+                          fontSize: 12.sp,
+                          color: check!
+                              ? AppColors.iconColor
+                              : AppColors.blackColor,
+                          fontWeight:
+                              check ? FontWeight.w400 : FontWeight.bold),
+                    ),
+                  ],
                 ),
                 trailing: const Icon(
                   Icons.chat,

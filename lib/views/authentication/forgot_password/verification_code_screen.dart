@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mentalhealth/configs/state_model.dart';
 import 'package:mentalhealth/controllers/email_confirm.dart';
+import 'package:mentalhealth/controllers/send_email_confirmation.dart';
 import 'package:mentalhealth/global/reuseable/snackbar.dart';
 import 'package:mentalhealth/views/authentication/signup/sign_up_screen.dart';
 import 'package:pinput/pinput.dart';
@@ -56,12 +57,19 @@ class VerificationCodeScreen extends ConsumerWidget {
                   pinput(code),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Text(
-                      "Resend Code",
-                      style: textPoppions.bodyLarge!.copyWith(
-                        fontSize: 14.sp,
-                        color: AppColors.primaryColor,
-                        fontWeight: FontWeight.w600,
+                    child: GestureDetector(
+                      onTap: () {
+                        ref
+                            .read(sendEmailControllerProvider.notifier)
+                            .sendEmail(email);
+                      },
+                      child: Text(
+                        "Resend Code",
+                        style: textPoppions.bodyLarge!.copyWith(
+                          fontSize: 14.sp,
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),

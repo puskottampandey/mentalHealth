@@ -7,6 +7,7 @@ import 'package:mentalhealth/controllers/get_post_controller.dart';
 import 'package:mentalhealth/controllers/like_post.dart';
 import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:mentalhealth/global/constants/colors_text.dart';
+import 'package:mentalhealth/global/reuseable/snackbar.dart';
 import 'package:mentalhealth/global/services/token_service.dart';
 import 'package:mentalhealth/views/home/personal/post_entry.dart';
 import 'package:signalr_netcore/http_connection_options.dart';
@@ -22,41 +23,6 @@ class CommunityScreen extends ConsumerStatefulWidget {
 }
 
 class _CommunityScreenState extends ConsumerState<CommunityScreen> {
-  late HubConnection hubConnection;
-  TextEditingController messageController = TextEditingController();
-
-  List<Map<String, String>> messages = [];
-  @override
-  void initState() {
-    super.initState();
-    _initializeSignalR();
-  }
-
-  Future<void> _initializeSignalR() async {
-    final token = await TokenService().getToken();
-
-    hubConnection = HubConnectionBuilder()
-        .withUrl(
-          "https://mint-publicly-seagull.ngrok-free.app/posthub",
-          options: HttpConnectionOptions(
-            accessTokenFactory: () async => "$token",
-          ),
-        )
-        .build();
-
-    await hubConnection.start();
-
-    hubConnection.on("ReceiveNotification", (arguments) {
-      print(arguments);
-      // setState(() {
-      //   messages.insert(0, {
-      //     "sender": arguments![0].toString(),
-      //     "message": arguments[1].toString()
-      //   });
-      // });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final details = ref.watch(postListControllerProvider);
@@ -117,9 +83,15 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               Builder(builder: (context) {
                 switch (details.requestStatus) {
                   case RequestStatus.initial:
-                    return Center(child: Container());
+                    return const Center(
+                        child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
+                    ));
                   case RequestStatus.progress:
-                    return Center(child: Container());
+                    return const Center(
+                        child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
+                    ));
                   case RequestStatus.success:
                     return PostListDetails(data: details.data);
                   case RequestStatus.failure:
@@ -156,7 +128,38 @@ class PostListDetails extends ConsumerStatefulWidget {
 }
 
 class _PostListDetailsState extends ConsumerState<PostListDetails> {
-  bool _liked = false;
+  late HubConnection hubConnection;
+  TextEditingController messageController = TextEditingController();
+  final String message = '';
+  @override
+  void initState() {
+    super.initState();
+    _initializeSignalR();
+  }
+
+  Future<void> _initializeSignalR() async {
+    final token = await TokenService().getToken();
+
+    hubConnection = HubConnectionBuilder()
+        .withUrl(
+          "https://mint-publicly-seagull.ngrok-free.app/posthub",
+          options: HttpConnectionOptions(
+            accessTokenFactory: () async => "$token",
+          ),
+        )
+        .build();
+
+    await hubConnection.start();
+
+    hubConnection.on("ReceiveNotification", (arguments) {
+      setState(() {
+        if (arguments != null && arguments.isNotEmpty && arguments[0] != null) {
+          SnackBars.successSnackbar(context, arguments[0].toString());
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final id = ref.watch(userId);
@@ -179,7 +182,7 @@ class _PostListDetailsState extends ConsumerState<PostListDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Puskottam Pandey",
+                  "${item.user!.userName}",
                   style: textPoppions.titleMedium?.copyWith(
                       fontSize: 16.sp,
                       color: AppColors.blackColor,
@@ -222,18 +225,28 @@ class _PostListDetailsState extends ConsumerState<PostListDetails> {
                       visualDensity: VisualDensity.compact,
                       color: AppColors.iconColor,
                       padding: EdgeInsets.zero,
-                      onPressed: () {
-                        setState(() {
-                          _liked = !_liked;
-                        });
-                        ref
-                            .watch(likePostControllerProvider.notifier)
+                      onPressed: () async {
+                        final response = await ref
+                            .read(likePostControllerProvider.notifier)
                             .likePost(item.id, id);
+
+                        if (response != null) {
+                          final int newLikeCount =
+                              response['likeCount']['likeCount'];
+                          final bool isLikedByUser = response['isLikedByUser'];
+
+                          setState(() {
+                            item.likesCount = newLikeCount;
+                            item.isLikedByUser = isLikedByUser;
+                          });
+                        }
                       },
                       icon: Icon(
-                        Icons.thumb_up,
-                        color: _liked
-                            ? AppColors.primaryColor
+                        item.isLikedByUser
+                            ? Icons.thumb_up
+                            : Icons.thumb_up_alt_outlined,
+                        color: item.isLikedByUser
+                            ? Colors.blue
                             : AppColors.iconColor,
                       ),
                     ),
@@ -254,7 +267,7 @@ class _PostListDetailsState extends ConsumerState<PostListDetails> {
                       ),
                     ),
                     Text(
-                      item.likesCount.toString(),
+                      item.commentsCount.toString(),
                       style: textPoppions.titleMedium?.copyWith(
                           fontSize: 14.sp,
                           color: AppColors.iconColor,

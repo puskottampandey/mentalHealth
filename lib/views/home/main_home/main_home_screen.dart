@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:mentalhealth/controllers/get_conversation.dart';
+import 'package:mentalhealth/controllers/get_conversations.dart';
 import 'package:mentalhealth/controllers/get_post_controller.dart';
 import 'package:mentalhealth/controllers/therapist_user.dart';
 import 'package:mentalhealth/controllers/user_data.dart';
@@ -65,20 +67,17 @@ class MainHomeScreen extends ConsumerWidget {
             ref.read(currentIndexProvider.notifier).state = index;
             if (index == 1) {
               ref
-                  .read(therapistUserControllerProvider.notifier)
-                  .therapistUser(id);
+                  .read(conversionListControllerProvider.notifier)
+                  .getConversionList();
             }
             if (index == 2) {
               ref.read(postListControllerProvider.notifier).getPostList();
-            }
-            if (index == 3) {
-              ref.read(userDataControllerProvider.notifier).userData();
             }
           },
           items: [
             salomonBar(currentIndex, Icons.home, "Home", 0),
             salomonBar(currentIndex, Icons.chat, "Chat", 1),
-            salomonBar(currentIndex, Icons.history, "History", 2),
+            salomonBar(currentIndex, Icons.history, "Community", 2),
             salomonBar(currentIndex, Icons.person, "Profile", 3),
           ],
         ),

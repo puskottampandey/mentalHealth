@@ -45,7 +45,7 @@ class DoctorDetails extends ConsumerWidget {
         height: 60.h,
         child: ReuseableButton(
           ontap: () {
-            ConfirmSheet.customBottomSheet(context);
+            context.push("/payment");
           },
           text: "Get Appointment",
           textcolor: AppColors.pureWhiteColor,
@@ -203,7 +203,6 @@ class DoctorDetailsData extends StatelessWidget {
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                     ),
-                    textAlign: TextAlign.justify,
                   ),
                   Text(
                     '${data.bio}',
@@ -212,7 +211,6 @@ class DoctorDetailsData extends StatelessWidget {
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                     ),
-                    textAlign: TextAlign.justify,
                   ),
                 ],
               )),

@@ -25,7 +25,7 @@ class CustomDropdown<T> extends StatelessWidget {
     return DropdownButtonFormField2<T>(
       isExpanded: true,
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        contentPadding: EdgeInsets.symmetric(vertical: 8.h),
         focusedBorder: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.blue, width: 1.5),
           borderRadius: BorderRadius.circular(borderRadius),
@@ -66,8 +66,8 @@ class CustomDropdown<T> extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
-      menuItemStyleData: const MenuItemStyleData(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+      menuItemStyleData: MenuItemStyleData(
+        padding: EdgeInsets.symmetric(horizontal: 8.h),
       ),
     );
   }

@@ -50,9 +50,6 @@ class SignUpScreen extends ConsumerWidget {
       if (next.requestStatus == RequestStatus.success) {
         SnackBars.successSnackbar(context, "Register successful!");
 
-        ref
-            .read(sendEmailControllerProvider.notifier)
-            .sendEmail(emailController.text);
         ref.read(userEmail.notifier).state = emailController.text;
         context.go("/verificationCode");
       }

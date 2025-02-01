@@ -4,6 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mentalhealth/configs/state_model.dart';
 import 'package:mentalhealth/controllers/chat_controller.dart';
 import 'package:mentalhealth/controllers/get_conversation.dart';
+import 'package:mentalhealth/controllers/get_phq_report.dart';
+import 'package:mentalhealth/controllers/get_reports.dart';
+import 'package:mentalhealth/controllers/signup_controller.dart';
 import 'package:mentalhealth/controllers/user_data.dart';
 import 'package:mentalhealth/global/constants/colors_text.dart';
 import 'package:mentalhealth/global/reuseable/scaffold.dart';
@@ -38,7 +41,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   late HubConnection hubConnection;
   TextEditingController messageController = TextEditingController();
-
+  final List<String> downloadName = [
+    " Mood Reports",
+    "PHQ9 reports",
+  ];
   List<Map<String, String>> messages = [];
   @override
   void initState() {
@@ -75,132 +81,220 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget build(BuildContext context) {
     final details = ref.watch(conversationControllerProvider);
     final userid = ref.watch(userId);
-  
+    final isLoading = ref.watch(reportLoading);
+    final progress = ref.watch(progressProvider);
+
     return ReuseableScaffold(
       appbar: true,
       text: widget.param.name,
       back: true,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                controller:
-                    _scrollController, // Scroll controller for synchronization
-                child: Column(
-                  children: [
-                    Builder(builder: (context) {
-                      switch (details.requestStatus) {
-                        case RequestStatus.initial:
-                          return Center(child: Container());
-                        case RequestStatus.progress:
-                          return Center(child: Container());
-                        case RequestStatus.success:
-                          return HistoryMessage(data: details.data, id: userid);
-                        case RequestStatus.failure:
-                          return Center(
-                            child: Text(
-                              "Something went wrong",
-                              style: textPoppions.titleMedium?.copyWith(
-                                  fontSize: 12.sp,
-                                  color: AppColors.blackColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          );
-                        case RequestStatus.fetchingMore:
-                          return Container();
-                      }
-                    }),
-                    ListView.builder(
-                      controller:
-                          _scrollController, // Same scroll controller to sync scroll
-                      physics: const NeverScrollableScrollPhysics(),
-                      reverse: true,
-                      shrinkWrap: true,
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        final msg = messages[index];
-                        bool isMe = msg["sender"] == userid;
-                        return Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 8.w, vertical: 6.h),
-                          child: Align(
-                            alignment: isMe
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Container(
-                              padding: const EdgeInsets.all(12.0),
-                              decoration: BoxDecoration(
-                                color: isMe
-                                    ? Colors.blue.shade100
-                                    : Colors.blue.shade300,
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
+      actions: [
+        PopupMenuButton<String>(
+          color: AppColors.whiteColor,
+          icon: const Icon(
+            Icons.more_vert,
+            color: AppColors.blackColor,
+          ),
+          onSelected: (String value) {
+            // Handle the menu selection here.
+            switch (value) {
+              case 'Mood Reports':
+                ref.read(reportControllerProvider.notifier).getReport(userid);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text(
+                    'Mood Reports Downloading.....',
+                    style: textPoppions.titleMedium?.copyWith(
+                        fontSize: 12.sp,
+                        color: AppColors.whiteColor,
+                        fontWeight: FontWeight.bold),
+                  )),
+                );
+                break;
+              case 'PHQ9 reports':
+                ref
+                    .read(reportPHQControllerProvider.notifier)
+                    .getReportPhq(userid);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text(
+                    'PHQ9 reports Downloading.....',
+                    style: textPoppions.titleMedium?.copyWith(
+                        fontSize: 12.sp,
+                        color: AppColors.whiteColor,
+                        fontWeight: FontWeight.bold),
+                  )),
+                );
+
+                break;
+            }
+          },
+          itemBuilder: (BuildContext context) {
+            return [
+              PopupMenuItem<String>(
+                value: 'Mood Reports',
+                child: Text(
+                  'Mood Reports',
+                  style: textPoppions.titleMedium?.copyWith(
+                      fontSize: 12.sp,
+                      color: AppColors.blackColor,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'PHQ9 reports',
+                child: Text(
+                  'PHQ9 reports',
+                  style: textPoppions.titleMedium?.copyWith(
+                      fontSize: 12.sp,
+                      color: AppColors.blackColor,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ];
+          },
+        ),
+      ],
+      child: Stack(children: [
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  controller:
+                      _scrollController, // Scroll controller for synchronization
+                  child: Column(
+                    children: [
+                      Builder(builder: (context) {
+                        switch (details.requestStatus) {
+                          case RequestStatus.initial:
+                            return Center(child: Container());
+                          case RequestStatus.progress:
+                            return Center(child: Container());
+                          case RequestStatus.success:
+                            return HistoryMessage(
+                                data: details.data, id: userid);
+                          case RequestStatus.failure:
+                            return Center(
                               child: Text(
-                                msg["message"]!,
-                                style: textPoppions.headlineMedium?.copyWith(
-                                  color: AppColors.blackColor,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
+                                "Something went wrong",
+                                style: textPoppions.titleMedium?.copyWith(
+                                    fontSize: 12.sp,
+                                    color: AppColors.blackColor,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            );
+                          case RequestStatus.fetchingMore:
+                            return Container();
+                        }
+                      }),
+                      ListView.builder(
+                        controller:
+                            _scrollController, // Same scroll controller to sync scroll
+                        physics: const NeverScrollableScrollPhysics(),
+                        reverse: true,
+                        shrinkWrap: true,
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          final msg = messages[index];
+                          bool isMe = msg["sender"] == userid;
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8.w, vertical: 6.h),
+                            child: Align(
+                              alignment: isMe
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
+                              child: Container(
+                                padding: const EdgeInsets.all(12.0),
+                                decoration: BoxDecoration(
+                                  color: isMe
+                                      ? Colors.blue.shade100
+                                      : Colors.blue.shade300,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Text(
+                                  msg["message"]!,
+                                  style: textPoppions.headlineMedium?.copyWith(
+                                    color: AppColors.blackColor,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.h),
+              Container(
+                color: Colors.grey[200],
+                child: Row(
+                  children: [
+                    // Text input
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                        decoration: BoxDecoration(
+                            color: AppColors.pureWhiteColor,
+                            borderRadius: BorderRadius.circular(8.r)),
+                        child: TextField(
+                          controller: messageController,
+                          decoration: InputDecoration(
+                            hintText: 'Type a message...',
+                            hintStyle: textPoppions.headlineMedium?.copyWith(
+                              color: AppColors.iconColor,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            border: InputBorder.none,
                           ),
-                        );
+                        ),
+                      ),
+                    ),
+                    // Send button
+                    IconButton(
+                      icon: const Icon(
+                        Icons.send,
+                        color: AppColors.primaryColor,
+                      ),
+                      onPressed: () {
+                        if (messageController.text.trim().isNotEmpty) {
+                          ref
+                              .read(sendMessageControllerProvider.notifier)
+                              .sendMessage(widget.param.conversationId,
+                                  messageController.text);
+                        }
                       },
                     ),
                   ],
                 ),
               ),
-            ),
-            SizedBox(height: 10.h),
-            Container(
-              color: Colors.grey[200],
-              child: Row(
-                children: [
-                  // Text input
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                      decoration: BoxDecoration(
-                          color: AppColors.pureWhiteColor,
-                          borderRadius: BorderRadius.circular(8.r)),
-                      child: TextField(
-                        controller: messageController,
-                        decoration: InputDecoration(
-                          hintText: 'Type a message...',
-                          hintStyle: textPoppions.headlineMedium?.copyWith(
-                            color: AppColors.iconColor,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Send button
-                  IconButton(
-                    icon: const Icon(
-                      Icons.send,
-                      color: AppColors.primaryColor,
-                    ),
-                    onPressed: () {
-                      if (messageController.text.trim().isNotEmpty) {
-                        ref
-                            .read(sendMessageControllerProvider.notifier)
-                            .sendMessage(widget.param.conversationId,
-                                messageController.text);
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+        isLoading
+            ? Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.black.withOpacity(0.5),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(value: progress),
+                    const SizedBox(height: 20),
+                    Text("${(progress * 100).toStringAsFixed(0)}%"),
+                  ],
+                ),
+              )
+            : Container()
+      ]),
     );
   }
 }
